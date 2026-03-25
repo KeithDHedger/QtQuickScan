@@ -46,8 +46,8 @@ void ScannerClass::check(SANE_Status status, const char *msg)
 
 bool ScannerClass::set_option(const char *optname, const void *value, size_t size)
 {
-	SANE_Status s;
-		// iterate options until name matches
+	SANE_Status	s;
+// iterate options until name matches
 	for (SANE_Int i = 1; ; ++i)
 		{
 			const SANE_Option_Descriptor *opt = sane_get_option_descriptor(this->hdl, i);
@@ -58,32 +58,29 @@ bool ScannerClass::set_option(const char *optname, const void *value, size_t siz
 					//fprintf(stderr,">>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
 					switch(desc->type)
 						{
-							//case SANE_TYPE_BOOL://0
+							//case SANE_TYPE_BOOL://0 TODO
 							//	
 							//	break;
 							case SANE_TYPE_INT://1
 								{
-									fprintf(stderr,"SANE_TYPE_INT>>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
+									//fprintf(stderr,"SANE_TYPE_INT>>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
 									SANE_Int res = atoi((const char*)value);
-
-									//SANE_Word res=SANE_UNFIX(atoi((const char*)value));
-									//s = sane_control_option(this->hdl, i, SANE_ACTION_SET_VALUE,75, 0);
 									s = sane_control_option(this->hdl, i, SANE_ACTION_SET_VALUE, &res, 0);
 								}
 								break;
 							case SANE_TYPE_FIXED://2
 								{
-									fprintf(stderr,"SANE_TYPE_FIXED>>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
+									//fprintf(stderr,"SANE_TYPE_FIXED>>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
 									SANE_Word res=SANE_FIX(atoi((const char*)value));
 									s = sane_control_option(this->hdl, i, SANE_ACTION_SET_VALUE, &res, 0);
 								}
 								break;
 							case SANE_TYPE_STRING://3
-								fprintf(stderr,"SANE_TYPE_STRING>>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
+								//fprintf(stderr,"SANE_TYPE_STRING>>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
 								s = sane_control_option(this->hdl, i, SANE_ACTION_SET_VALUE, (void*)value, 0);
  								break;
   							default:
-  								fprintf(stderr,"default>>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
+  								//fprintf(stderr,"default>>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
   								break;
 						}
 
@@ -93,18 +90,6 @@ bool ScannerClass::set_option(const char *optname, const void *value, size_t siz
 		}
 	fprintf(stderr,"UNKNOWN>>>>>optname=%s val=%s\n",optname,(const char*)value);
 	return false;
-//	for (SANE_Int i = 1; ; ++i)
-//		{
-//			const SANE_Option_Descriptor *opt = sane_get_option_descriptor(this->hdl, i);
-//			if (!opt) break;
-//			if (opt->name && strcmp(opt->name, optname) == 0)
-//				{
-//					SANE_Status s = sane_control_option(this->hdl, i, SANE_ACTION_SET_VALUE, (void*)value, nullptr);
-//					this->check(s, optname);
-//					return true;
-//				}
-//		}
-//	return false;
 }
 
 void ScannerClass::setDevice(QString devname)
@@ -124,72 +109,21 @@ void ScannerClass::setDevice(QString devname)
 
 void ScannerClass::scanImage(void)
 {
-	SANE_Status status;
-	status = sane_init(nullptr, nullptr);
-	this->check(status, "sane_init");
-	const SANE_Option_Descriptor *desc;
-	const char *device_name=qPrintable(this->deviceName);
-	//status = sane_open(device_name,&this->hdl);
-	//this->check(status, "sane_open");
+	SANE_Status					status;
+	const SANE_Option_Descriptor	*desc;
+	unsigned char				buf[BUFFERSIZE];
+	const char					*device_name=qPrintable(this->deviceName);
+	SANE_Int						len;
+	int							total_bytes = 0;
+	int							hundred_percent;
+	SANE_Parameters				params;
+	double						progr=0;
 
-	for (int i=0;; ++i)
-		{
-			desc = sane_get_option_descriptor(this->hdl, i);
-			if (!desc) break;
+// Typical option names: "resolution", "br-x", "br-y", "tl-x", "tl-y", "mode"
+//for built in test scanners
+	const char *mode = "Color pattern";
+	set_option("test-picture", mode, (strlen(mode)+1));
 
-			if (desc->type == SANE_TYPE_BOOL)
-				{
-					fprintf(stderr,"%s\n	",desc->name);
-					fprintf(stderr,"[=(");
-					if (desc->cap & SANE_CAP_AUTOMATIC)
-						fprintf(stderr,"auto|");
-					fprintf(stderr,"yes|no)]\n");
-				}
-			else
-				{
-					if (desc->constraint_type == SANE_CONSTRAINT_RANGE)
-						{
-							fprintf(stderr,"%s\n	",desc->name);
-							switch(desc->type)
-								{
-								case SANE_TYPE_INT:
-									fprintf(stderr,"%i ... %i\n",desc->constraint.range->min,desc->constraint.range->max);
-									break;
-								case SANE_TYPE_FIXED:
-									fprintf(stderr,"%g ... %g\n",SANE_UNFIX (desc->constraint.range->min),SANE_UNFIX (desc->constraint.range->max));
-									break;
-								default:
-									fprintf(stderr,"type=%i\n",desc->type);
-									break;
-								}
-						}
-					if (desc->constraint_type == SANE_CONSTRAINT_WORD_LIST)
-						{
-							fprintf(stderr,"%s\n	",desc->name);
-							for(int j=1; j<=desc->constraint.word_list[0]; j++)
-								fprintf(stderr,"%i|",desc->constraint.word_list[j]);
-							fprintf(stderr,"\n");
-						}
-					if (desc->constraint_type == SANE_CONSTRAINT_STRING_LIST)
-						{
-							fprintf(stderr,"%s\n	",desc->name);
-							int cnt=0;
-							while(desc->constraint.string_list[cnt]!=NULL)
-								fprintf(stderr,"%s|",desc->constraint.string_list[cnt++]);
-							fprintf(stderr,"\n");
-						}
-
-				}
-
-		}
-
-	// Typical option names: "resolution", "br-x", "br-y", "tl-x", "tl-y", "mode"
-	// Set mode to "Color" (some devices use "Color", "Gray", "Lineart")
- //for test scanners
-   const char *mode = "Color pattern";
-   set_option("test-picture", mode, (strlen(mode)+1));
-
-//	const char *cmode = "Color";
 	set_option("mode",qPrintable(this->colourMode),(strlen(qPrintable(this->colourMode))+1));
 	set_option("resolution",qPrintable(this->resolution),(strlen(qPrintable(this->resolution))+1));
 
@@ -197,7 +131,6 @@ void ScannerClass::scanImage(void)
 	status = sane_start(this->hdl);
 	check(status, "sane_start");
 
-	SANE_Parameters params;
 	status = sane_get_parameters(this->hdl, &params);
 	check(status, "sane_get_parameters");
 
@@ -213,46 +146,20 @@ void ScannerClass::scanImage(void)
 		}
 	fprintf(out, "%s\n%d %d\n255\n", magic, params.pixels_per_line, params.lines);
 
+// Read loop
+	len=0;
+	buf[0]=0;
 
+	sane_read(this->hdl, buf, BUFFERSIZE, &len);
+	if(len==0)
+		return;
 
+	hundred_percent = params.bytes_per_line * params.lines * ((params.format == SANE_FRAME_RGB || params.format == SANE_FRAME_GRAY) ? 1:3);
 
-
-
-
-	// Read loop
-	const size_t BUFSZ = 32*1024;
-	unsigned char buf[BUFSZ];
-	SANE_Int len;
-
-len=0;
-int cnt=0;
-buf[0]=0;
-	do
-	{
-		cnt++;
-		if(cnt>10)
-			break;
-		sane_read(this->hdl, buf, BUFSZ, &len);
-		if(len==0)
-			{
-				return;
-				this->setDevice(this->deviceName);
-				sleep(1);
-				fprintf(stderr,"loops=%i handle=%p\n",cnt,this->hdl);
-			}
-	} while(len==0);
-
-int total_bytes = 0;
-int  hundred_percent;
-hundred_percent = params.bytes_per_line * params.lines * ((params.format == SANE_FRAME_RGB || params.format == SANE_FRAME_GRAY) ? 1:3);
-double progr=0;
-
-if(len!=0)
-	{
-		fwrite(buf, 1, len, out);
-		while (true)
+	fwrite(buf, 1, len, out);
+	while (true)
 		{
-			status = sane_read(this->hdl, buf, BUFSZ, &len);
+			status = sane_read(this->hdl, buf, BUFFERSIZE, &len);
 			if (status == SANE_STATUS_EOF || len == 0) break;
 			check(status, "sane_read");
 			fwrite(buf, 1, len, out);
@@ -262,22 +169,7 @@ if(len!=0)
 	  		  	progr = 100.;
 	   		 fprintf (stderr, "Progress: %3.1f%%\r", progr);
 		}
-	}
 
-
-
-
-
-	//while (true)
-//		{
-//			status = sane_read(this->hdl, buf, BUFSZ, &len);
-//			if (status == SANE_STATUS_EOF || len == 0) break;
-//			check(status, "sane_read");
-//			fwrite(buf, 1, len, out);
-//		}
-//
 	fclose(out);
-//	sane_close(this->hdl);
-//	sane_exit();
 	printf("Saved output.pnm (%d x %d)\n", params.pixels_per_line, params.lines);
 }

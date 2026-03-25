@@ -12,4 +12,11 @@ More options.
 Previews.
 Output filename.
 Image conversions.
-Etc.
+Prefs
+Save current prefs
+Progress bar.
+Error messages (GUI)
+About.
+Help.
+
+Etc. Etc.

@@ -36,6 +36,8 @@ class ScannerClass;
 #include "MainWindow.h"
 class MainWindowClass;
 
+#define BUFFERSIZE 65536
+
 #define SCANITEM 100
 #define QUITITEM 102
 
