@@ -6,7 +6,7 @@
 
  * Qt6Scan is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
+ * the Free Software Foundation,either version 3 of the License,or
  * (at your option) any later version.
 
  * Qt6Scan is distributed in the hope that it will be useful,
@@ -15,11 +15,13 @@
    GNU General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with Qt6Scan.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Qt6Scan.  If not,see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef _MAINWINDOW_
 #define _MAINWINDOW_
+
+extern QString	scanPath;
 
 class MainWindowClass: public QMainWindow
 {
@@ -32,15 +34,24 @@ class MainWindowClass: public QMainWindow
 		QMenu			*deviceMenu=NULL;
 		QMenu			*resoMenu=NULL;
 		QMenu			*colourMenu=NULL;
+		QLabel			*label;
 
 		ScannerClass		scanner;
+		void				loadImage(QString filename);
 
 	private:
 		void				setFileMenu(void);
 		void				setDeviceMenu(void);
 		void				setResoMenu(void);
 		void				setColourMenu(void);
+
+	protected:
 	    void				closeEvent(QCloseEvent *event) override;
+		void				resizeEvent(QResizeEvent *event)	override
+			{
+				QWidget::resizeEvent(event);
+				this->loadImage(scanPath);
+			}
 };
 
 #endif

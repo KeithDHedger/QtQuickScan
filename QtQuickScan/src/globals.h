@@ -6,7 +6,7 @@
 
  * Qt6Scan is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
+ * the Free Software Foundation,either version 3 of the License,or
  * (at your option) any later version.
 
  * Qt6Scan is distributed in the hope that it will be useful,
@@ -15,7 +15,7 @@
    GNU General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with Qt6Scan.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Qt6Scan.  If not,see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef _GLOBALS_
@@ -26,6 +26,11 @@
 #include <QCloseEvent>
 #include <QMenuBar>
 #include <QActionGroup>
+#include <QVBoxLayout>
+#include <QImage>
+#include <QLabel>
+#include <QFile>
+#include <QFileInfo>
 
 #include <sane/sane.h>
 #include <unistd.h>
@@ -36,12 +41,13 @@ class ScannerClass;
 #include "MainWindow.h"
 class MainWindowClass;
 
-#define BUFFERSIZE 65536
+#define BUFFERSIZE 1048510
 
-#define SCANITEM 100
-#define QUITITEM 102
+enum fileEnums {PREVIEWITEM=100,SCANITEM,QUITITEM};
 
-
-extern MainWindowClass *mwc;
+extern MainWindowClass	*mwc;
+extern QString			tmpFolderPath;
+extern QString			previewPath;
+extern QString			scanPath;
 
 #endif

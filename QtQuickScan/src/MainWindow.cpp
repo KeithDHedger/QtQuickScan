@@ -6,7 +6,7 @@
 
  * Qt6Scan is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
+ * the Free Software Foundation,either version 3 of the License,or
  * (at your option) any later version.
 
  * Qt6Scan is distributed in the hope that it will be useful,
@@ -15,7 +15,7 @@
    GNU General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with Qt6Scan.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Qt6Scan.  If not,see <http://www.gnu.org/licenses/>.
 */
 
 #include "globals.h"
@@ -32,8 +32,14 @@ void MainWindowClass::setFileMenu(void)
 	this->fileMenu=this->menuBar.addMenu("&File");
 	actions=new QActionGroup(this->fileMenu);
 	actions->setExclusive(true);
+
+	act=new QAction(QIcon::fromTheme("scanner"),"Preview",actions);
+	act->setData(PREVIEWITEM);
 	act=new QAction(QIcon::fromTheme("scanner"),"Scan",actions);
 	act->setData(SCANITEM);
+
+	act=new QAction(actions);
+	act->setSeparator(true);
 
 	act=new QAction(QIcon::fromTheme("application-exit"),"Quit",actions);
 	act->setShortcut(QKeySequence::Quit);
@@ -48,7 +54,11 @@ void MainWindowClass::setFileMenu(void)
 						qApp->exit();
 						break;
 					case SCANITEM:
-						this->scanner.scanImage();
+						this->scanner.scanImage(false);
+						qDebug()<<this->scanner.deviceName<<this->scanner.resolution<<this->scanner.colourMode;
+						break;
+					case PREVIEWITEM:
+						this->scanner.scanImage(true);
 						qDebug()<<this->scanner.deviceName<<this->scanner.resolution<<this->scanner.colourMode;
 						break;
 				}
@@ -65,7 +75,7 @@ void MainWindowClass::setDeviceMenu(void)
 
 	this->deviceMenu=this->menuBar.addMenu("&Devices");
 
-	status=sane_get_devices (&device_list, SANE_FALSE);
+	status=sane_get_devices (&device_list,SANE_FALSE);
 	if(status!= SANE_STATUS_GOOD)
 		{
 			qDebug()<<"No scanners found ...";
@@ -81,13 +91,12 @@ void MainWindowClass::setDeviceMenu(void)
 			if(first==true)
 				{
 					act->setChecked(true);
+					this->scanner.deviceName=device_list[j]->name;
 					first=false;
 				}	
 		  }
 
 	this->deviceMenu->addActions(actions->actions());
-	this->scanner.setDevice(actions->actions().at(0)->text());
-
 	QObject::connect(actions,&QActionGroup::triggered,this,[this](QAction *action)
 		{
 			this->scanner.setDevice(action->text());
@@ -128,7 +137,8 @@ void MainWindowClass::setColourMenu(void)
 {
 	QActionGroup		*actions;
 	QAction			*act;
-	QStringList		collist={"Color","Gray"};//YUCK TODO proper english spelling!
+	QStringList		collist={"Color","Gray"};
+	QStringList		engcollist={"Colour","Grey"};
 	bool				first=true;
 
 	this->colourMenu=this->menuBar.addMenu("&Colour");
@@ -136,7 +146,7 @@ void MainWindowClass::setColourMenu(void)
 
 	for(int j=0;j<collist.size();j++)
 		{
-			act=new QAction(collist.at(j),actions);
+			act=new QAction(engcollist.at(j),actions);
 			act->setData(collist.at(j));
 			act->setCheckable(true);
 			if(first==true)
@@ -149,13 +159,16 @@ void MainWindowClass::setColourMenu(void)
 	this->colourMenu->addActions(actions->actions());
 	QObject::connect(actions,&QActionGroup::triggered,this,[this](QAction *action)
 		{
-			qDebug()<<"Set colour mode to"<<action->data().toString();
+			qDebug()<<"Set colour mode to"<<action->text();
 			this->scanner.colourMode=action->data().toString();
 		});
 }
 
 MainWindowClass::MainWindowClass()
 {
+	QVBoxLayout	*layout=new QVBoxLayout;
+	QWidget		*widg=new QWidget;
+
 	this->setFileMenu();
 	this->setDeviceMenu();
 	this->setResoMenu();
@@ -165,9 +178,26 @@ MainWindowClass::MainWindowClass()
 
 	this->setGeometry(540,320,800,600);
 
+	this->label=new QLabel;
+
+	layout->addWidget(this->label);
+	layout->setAlignment(Qt::AlignCenter);
+
+	widg->setLayout(layout);
+	this->setCentralWidget(widg);
 }
 
 void MainWindowClass::closeEvent(QCloseEvent *event)
 {
 	event->accept();
+}
+
+void MainWindowClass::loadImage(QString filename)
+{
+	if(QFileInfo::exists(filename)==false)
+		return;
+
+	QImage image=scanner.getPreviewImage(filename);
+	QImage image2=image.scaled(this->width()-50,this->height()-50,Qt::KeepAspectRatio);
+	mwc->label->setPixmap(QPixmap::fromImage(image2));
 }

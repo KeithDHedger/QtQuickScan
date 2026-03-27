@@ -6,7 +6,7 @@
 
  * Qt6Scan is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
+ * the Free Software Foundation,either version 3 of the License,or
  * (at your option) any later version.
 
  * Qt6Scan is distributed in the hope that it will be useful,
@@ -15,22 +15,35 @@
    GNU General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with Qt6Scan.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Qt6Scan.  If not,see <http://www.gnu.org/licenses/>.
 */
 
 #include "globals.h"
 
 int main(int argc,char** argv)
 {
-	QApplication app(argc,argv);
+	QApplication	app(argc,argv);
+	char			tmpfoldertemplate[]="/tmp/QtQuickScan-XXXXXX";
+
+	tmpFolderPath=mkdtemp(tmpfoldertemplate);
+	if(tmpFolderPath.isEmpty()==true)
+		{
+			qDebug()<<"Can't create temporary folder,quitting ...";
+			exit (100);
+		}
+
+	previewPath=QString("%1/preview.pnm").arg(tmpFolderPath);
+	scanPath=QString("%1/scan.pnm").arg(tmpFolderPath);
 
 	mwc=new MainWindowClass;
 	mwc->show();
+	mwc->loadImage(scanPath);
+	mwc->scanner.setDevice(mwc->scanner.deviceName);
 
-	//mwc->scanner.setDevice(argv[1]);
-	//mwc->scanner.scanImage();
 	app.exec();
 
 	delete mwc;
+
+	system(qPrintable(QString("rm -r %1").arg(tmpFolderPath)));
 	return 0;
 }
