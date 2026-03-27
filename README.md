@@ -7,8 +7,8 @@ Usable,but at the moment you can only set resolution,select the device and set c
 
 Images are hardcoded ( for now ) as pnm images sent to "/tmp/output.pnm"
 
-```code
 To compile use:
+```code
 ./autogen --prefix=/usr
 make
 
@@ -23,7 +23,7 @@ Qt6 ( may run on Qt5 but you need to adjust the configure.ac file ).
 
 TODO ( in no particular order ):  
 More options.  
-~~Previews.~~
+~~Previews.~~  
 Output filename.  
 Image conversions.  
 Prefs  
