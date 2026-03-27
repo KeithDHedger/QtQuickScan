@@ -1,4 +1,6 @@
 0.0.5
+Changing devices resets default resolution.
+Fixed preview resolution.
 Scale preview when resizing main window.
 Added preview.
 

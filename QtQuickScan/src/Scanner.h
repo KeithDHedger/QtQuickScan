@@ -31,6 +31,7 @@ class ScannerClass
 		QString		resolution;
 		QString		colourMode="Color";
 
+		void			getDefaultResolution(void);
 		void			setDevice(QString devname);
 		void			scanImage(bool preview);
 		QImage		getPreviewImage(QString filepath);
@@ -43,7 +44,6 @@ class ScannerClass
 		void			check(SANE_Status status,const char *msg);
 		void 		getOption(const char *optname);
 		bool			setOption(const char *optname,const void *value);
-		void			getDefaultResolution(void);
 };
 
 #endif

@@ -100,6 +100,7 @@ void MainWindowClass::setDeviceMenu(void)
 	QObject::connect(actions,&QActionGroup::triggered,this,[this](QAction *action)
 		{
 			this->scanner.setDevice(action->text());
+			this->scanner.getDefaultResolution();
 		});
 }
 

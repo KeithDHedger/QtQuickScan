@@ -201,6 +201,7 @@ void ScannerClass::scanImage(bool preview)
 	int							hundred_percent;
 	SANE_Parameters				params;
 	double						progr=0;
+	FILE							*out;
 
 	mwc->label->setText("");
 	qApp->processEvents();
@@ -211,10 +212,29 @@ void ScannerClass::scanImage(bool preview)
 	setOption("test-picture",mode);
 
 	setOption("mode",qPrintable(this->colourMode));
-	if(preview==false)
-		setOption("resolution",qPrintable(this->resolution));
+
+	if(preview==true)
+		{
+			this->getDefaultResolution();
+			//this->resolution=this->defaultResolution;
+			setOption("resolution",qPrintable(this->defaultResolution));
+		}
 	else
-		setOption("resolution",qPrintable(this->defaultResolution));
+		{
+			if(this->resolution.isEmpty())
+				{
+					this->getDefaultResolution();
+					setOption("resolution",qPrintable(this->defaultResolution));
+				}
+			else
+				setOption("resolution",qPrintable(this->resolution));
+		}
+//	if(this->resolution.isEmpty()==true)
+//		this->resolution=this->defaultResolution;
+//	if(preview==false)
+//		setOption("resolution",qPrintable(this->resolution));
+//	else
+//		setOption("resolution",qPrintable(this->defaultResolution));
 
 	// Start the scan
 	status=sane_start(this->hdl);
@@ -225,7 +245,12 @@ void ScannerClass::scanImage(bool preview)
 
 	// Determine PNM header
 	const char *magic=(params.format==SANE_FRAME_GRAY) ? "P5" : "P6";
-	FILE *out=fopen(qPrintable(scanPath),"wb");
+
+	if(preview==true)
+		out=fopen(qPrintable(previewPath),"wb");
+	else
+		out=fopen(qPrintable(scanPath),"wb");
+
 	if(!out)
 		{
 			perror("fopen");
@@ -257,16 +282,23 @@ void ScannerClass::scanImage(bool preview)
 			if(progr>100.0)
 				progr=100.0;
 			fprintf (stderr,"Progress: %3.1f%%\r",progr);
-			mwc->loadImage(scanPath);
+			if(preview==true)
+				mwc->loadImage(previewPath);
+			else
+				mwc->loadImage(scanPath);
 			qApp->processEvents();
 		}
 
 	fclose(out);
 
 	printf("Saved output.pnm (%d x %d)\n",params.pixels_per_line,params.lines);
-	mwc->loadImage(scanPath);
 	if(preview==false)
-		system(qPrintable(QString("cp %1 /tmp/output.pnm").arg(scanPath)));
+		{
+			mwc->loadImage(scanPath);
+			system(qPrintable(QString("cp %1 /tmp/output.pnm").arg(scanPath)));
+		}
+	else
+		mwc->loadImage(previewPath);
 }
 
 QImage ScannerClass::getPreviewImage(QString filepath)
