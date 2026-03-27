@@ -265,6 +265,8 @@ void ScannerClass::scanImage(bool preview)
 
 	printf("Saved output.pnm (%d x %d)\n",params.pixels_per_line,params.lines);
 	mwc->loadImage(scanPath);
+	if(preview==false)
+		system(qPrintable(QString("cp %1 /tmp/output.pnm").arg(scanPath)));
 }
 
 QImage ScannerClass::getPreviewImage(QString filepath)
