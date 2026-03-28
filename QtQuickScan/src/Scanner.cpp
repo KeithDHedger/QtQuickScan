@@ -179,12 +179,16 @@ void ScannerClass::setDevice(QString devname)
 	if(st==SANE_STATUS_GOOD)
 		{
 			qDebug()<<"Opened"<<devname;
+			this->resolution="";
+			this->defaultResolution="";
 			this->getDefaultResolution();
 			this->getOption("mode");
 			this->getOption("resolution");
 			this->getOption("test-picture");
 
-			mwc->loadImage(scanPath);
+			system(qPrintable(QString("rm %1 %2").arg(previewPath).arg(scanPath)));
+			mwc->label->setPixmap(QPixmap());
+			mwc->setSensitive();
 		}
 	else
 		qDebug()<<"Failed to open"<<devname;
@@ -215,8 +219,6 @@ void ScannerClass::scanImage(bool preview)
 
 	if(preview==true)
 		{
-			this->getDefaultResolution();
-			//this->resolution=this->defaultResolution;
 			setOption("resolution",qPrintable(this->defaultResolution));
 		}
 	else
@@ -229,12 +231,6 @@ void ScannerClass::scanImage(bool preview)
 			else
 				setOption("resolution",qPrintable(this->resolution));
 		}
-//	if(this->resolution.isEmpty()==true)
-//		this->resolution=this->defaultResolution;
-//	if(preview==false)
-//		setOption("resolution",qPrintable(this->resolution));
-//	else
-//		setOption("resolution",qPrintable(this->defaultResolution));
 
 	// Start the scan
 	status=sane_start(this->hdl);
@@ -295,7 +291,7 @@ void ScannerClass::scanImage(bool preview)
 	if(preview==false)
 		{
 			mwc->loadImage(scanPath);
-			system(qPrintable(QString("cp %1 /tmp/output.pnm").arg(scanPath)));
+			//system(qPrintable(QString("cp %1 /tmp/output.pnm").arg(scanPath)));
 		}
 	else
 		mwc->loadImage(previewPath);

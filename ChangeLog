@@ -1,4 +1,8 @@
 0.0.5
+Clear preview when changing device.
+Added save as jpeg.
+Added save as png.
+Added save as pnm.
 Changing devices resets default resolution.
 Fixed preview resolution.
 Scale preview when resizing main window.

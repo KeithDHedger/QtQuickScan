@@ -31,9 +31,14 @@
 #include <QLabel>
 #include <QFile>
 #include <QFileInfo>
+#include <QImageReader>
+#include <QImageWriter>
 
 #include <sane/sane.h>
 #include <unistd.h>
+
+#include "Utilities.h"
+class UtilitiesClass;
 
 #include "Scanner.h"
 class ScannerClass;
@@ -41,9 +46,10 @@ class ScannerClass;
 #include "MainWindow.h"
 class MainWindowClass;
 
+
 #define BUFFERSIZE 1048510
 
-enum fileEnums {PREVIEWITEM=100,SCANITEM,QUITITEM};
+enum fileEnums {PREVIEWITEM=100,SCANITEM,QUITITEM,SAVEITEM,SAVEASJPGITEM,SAVEASPNGITEM,SAVEASPNMITEM,XXITEM};
 
 extern MainWindowClass	*mwc;
 extern QString			tmpFolderPath;

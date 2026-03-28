@@ -5,7 +5,7 @@ Just started so lots to do yet.
   
 Usable,but at the moment you can only set resolution,select the device and set colour.  
 
-Images are hardcoded ( for now ) as pnm images sent to "/tmp/output.pnm"
+Images are hardcoded ( for now ) as pnm images sent to "/tmp/output.[jpg/png/pnm]"
 
 To compile use:
 ```code
@@ -25,7 +25,8 @@ TODO ( in no particular order ):
 More options.  
 ~~Previews.~~  
 Output filename.  
-Image conversions.  
+~~Image conversions.~~ ( Partley done ( jpg/png/pnm )  
+Set menu items when changing device etc.
 Prefs  
 Save current prefs  
 Progress bar.  

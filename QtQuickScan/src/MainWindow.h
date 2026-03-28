@@ -22,6 +22,7 @@
 #define _MAINWINDOW_
 
 extern QString	scanPath;
+extern QString	previewPath;
 
 class MainWindowClass: public QMainWindow
 {
@@ -37,9 +38,13 @@ class MainWindowClass: public QMainWindow
 		QLabel			*label;
 
 		ScannerClass		scanner;
+		UtilitiesClass	utils;
+
 		void				loadImage(QString filename);
+		void				setSensitive(void);
 
 	private:
+		bool				gotScan=false;
 		void				setFileMenu(void);
 		void				setDeviceMenu(void);
 		void				setResoMenu(void);
@@ -50,7 +55,10 @@ class MainWindowClass: public QMainWindow
 		void				resizeEvent(QResizeEvent *event)	override
 			{
 				QWidget::resizeEvent(event);
-				this->loadImage(scanPath);
+				if(QFileInfo::exists(scanPath))
+					this->loadImage(scanPath);
+				else if(QFileInfo::exists(previewPath))
+					this->loadImage(previewPath);
 			}
 };
 

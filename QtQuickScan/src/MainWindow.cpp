@@ -41,6 +41,22 @@ void MainWindowClass::setFileMenu(void)
 	act=new QAction(actions);
 	act->setSeparator(true);
 
+	act=new QAction(QIcon::fromTheme("document-save"),"Save",actions);
+	act->setShortcut(QKeySequence::SaveAs);
+	act->setData(SAVEITEM);
+
+	act=new QAction(QIcon::fromTheme("document-save"),"Save As JPEG",actions);
+	act->setData(SAVEASJPGITEM);
+
+	act=new QAction(QIcon::fromTheme("document-save"),"Save As PNG",actions);
+	act->setData(SAVEASPNGITEM);
+
+	act=new QAction(QIcon::fromTheme("document-save"),"Save As PNM",actions);
+	act->setData(SAVEASPNMITEM);
+
+	act=new QAction(actions);
+	act->setSeparator(true);
+
 	act=new QAction(QIcon::fromTheme("application-exit"),"Quit",actions);
 	act->setShortcut(QKeySequence::Quit);
 	act->setData(QUITITEM);
@@ -50,6 +66,15 @@ void MainWindowClass::setFileMenu(void)
 		{
 			switch(action->data().toInt())
 				{
+					case SAVEASJPGITEM:
+						this->utils.convertImage("jpg");
+						break;
+					case SAVEASPNGITEM:
+						this->utils.convertImage("png");
+						break;
+					case SAVEASPNMITEM:
+						this->utils.convertImage("pnm");
+						break;
 					case QUITITEM:
 						qApp->exit();
 						break;
@@ -201,4 +226,9 @@ void MainWindowClass::loadImage(QString filename)
 	QImage image=scanner.getPreviewImage(filename);
 	QImage image2=image.scaled(this->width()-50,this->height()-50,Qt::KeepAspectRatio);
 	mwc->label->setPixmap(QPixmap::fromImage(image2));
+}
+
+void MainWindowClass::setSensitive(void)
+{
+	qDebug()<<"TODO";
 }
