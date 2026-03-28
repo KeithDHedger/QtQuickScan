@@ -219,8 +219,7 @@ void ScannerClass::scanImage(bool preview)
 
 // Typical option names: "resolution","br-x","br-y","tl-x","tl-y","mode"
 //for built in test scanners
-	const char *mode="Color pattern";
-	setOption("test-picture",mode);
+	setOption("test-picture","Color pattern");
 
 	setOption("mode",qPrintable(this->colourMode));
 
