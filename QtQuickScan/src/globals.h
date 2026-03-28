@@ -33,6 +33,7 @@
 #include <QFileInfo>
 #include <QImageReader>
 #include <QImageWriter>
+#include <QProcess>
 
 #include <sane/sane.h>
 #include <unistd.h>
@@ -49,7 +50,7 @@ class MainWindowClass;
 
 #define BUFFERSIZE 1048510
 
-enum fileEnums {PREVIEWITEM=1,SCANITEM,DIV1,SAVEITEM,SAVEASJPGITEM,SAVEASPNGITEM,SAVEASPNMITEM,DIV2,QUITITEM};
+enum fileEnums {PREVIEWITEM=1,SCANITEM,DIV1,OPENINGIMPITEM,DIV3,SAVEITEM,SAVEASJPGITEM,SAVEASPNGITEM,SAVEASPNMITEM,DIV2,QUITITEM};
 
 extern MainWindowClass	*mwc;
 extern QString			tmpFolderPath;

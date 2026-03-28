@@ -1,4 +1,5 @@
 0.0.5
+Added open in gimp.
 Set file menu items sensitive.
 Reset default resolution before switching devices.
 Clear preview when changing device.

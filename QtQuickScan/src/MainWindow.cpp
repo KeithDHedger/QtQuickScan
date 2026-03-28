@@ -41,6 +41,12 @@ void MainWindowClass::setFileMenu(void)
 	act=new QAction(actions);
 	act->setSeparator(true);
 
+	act=new QAction(QIcon::fromTheme("document-open"),"Open In GIMP",actions);
+	act->setData(OPENINGIMPITEM);
+
+	act=new QAction(actions);
+	act->setSeparator(true);
+
 	act=new QAction(QIcon::fromTheme("document-save"),"Save",actions);
 	act->setShortcut(QKeySequence::SaveAs);
 	act->setData(SAVEITEM);
@@ -66,6 +72,9 @@ void MainWindowClass::setFileMenu(void)
 		{
 			switch(action->data().toInt())
 				{
+					case OPENINGIMPITEM:
+						QProcess::startDetached("gimp",QStringList()<<qPrintable(scanPath));
+						break;
 					case SAVEASJPGITEM:
 						this->utils.convertImage("jpg");
 						break;
