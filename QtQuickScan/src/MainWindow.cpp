@@ -133,7 +133,7 @@ void MainWindowClass::setResoMenu(void)
 {
 	QActionGroup		*actions;
 	QAction			*act;
-	QStringList		resolist={"75","150","300","600","1200"};
+	QStringList		resolist={"Default","75","150","300","600","1200"};
 	bool				first=true;
 
 	this->resoMenu=this->menuBar.addMenu("&Resolution");
@@ -154,8 +154,11 @@ void MainWindowClass::setResoMenu(void)
 	this->resoMenu->addActions(actions->actions());
 	QObject::connect(actions,&QActionGroup::triggered,this,[this](QAction *action)
 		{
+			if(action->data().toString()=="Default")
+				this->scanner.resolution=this->scanner.defaultResolution;
+			else
+				this->scanner.resolution=action->data().toString();
 			qDebug()<<"Set resolution to"<<action->data().toString();
-			this->scanner.resolution=action->data().toString();
 		});
 }
 
@@ -231,4 +234,7 @@ void MainWindowClass::loadImage(QString filename)
 void MainWindowClass::setSensitive(void)
 {
 	qDebug()<<"TODO";
+	this->resoMenu->actions().at(0)->setChecked(true);
+	
+	
 }

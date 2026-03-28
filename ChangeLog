@@ -1,4 +1,5 @@
 0.0.5
+Reset default resolution before switching devices.
 Clear preview when changing device.
 Added save as jpeg.
 Added save as png.

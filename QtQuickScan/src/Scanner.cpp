@@ -172,7 +172,11 @@ void ScannerClass::setDevice(QString devname)
 	SANE_Status	st;
 
 	if(this->hdl!=NULL)
-		sane_close(this->hdl);
+		{
+//reset def reso
+			setOption("resolution",qPrintable(this->defaultResolution));
+			sane_close(this->hdl);
+		}
 	this->deviceName=devname;
 
 	st=sane_open(qPrintable(this->deviceName),&this->hdl);

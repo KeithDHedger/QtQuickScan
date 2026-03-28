@@ -29,6 +29,7 @@ class ScannerClass
 
 		QString		deviceName;
 		QString		resolution;
+		QString		defaultResolution;
 		QString		colourMode="Color";
 
 		void			getDefaultResolution(void);
@@ -39,7 +40,6 @@ class ScannerClass
 	private:
 		SANE_Handle	hdl=NULL;
 		FILE			*ofp=stdout;
-		QString		defaultResolution;
 
 		void			check(SANE_Status status,const char *msg);
 		void 		getOption(const char *optname);
