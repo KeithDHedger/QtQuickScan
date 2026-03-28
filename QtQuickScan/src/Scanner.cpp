@@ -192,6 +192,9 @@ void ScannerClass::setDevice(QString devname)
 
 			system(qPrintable(QString("rm %1 %2").arg(previewPath).arg(scanPath)));
 			mwc->label->setPixmap(QPixmap());
+			mwc->resoMenu->actions().at(0)->setChecked(true);
+			//this->colourMode="Color";???
+			//mwc->colourMenu->actions().at(0)->setChecked(true);???
 			mwc->setSensitive();
 		}
 	else
@@ -295,10 +298,12 @@ void ScannerClass::scanImage(bool preview)
 	if(preview==false)
 		{
 			mwc->loadImage(scanPath);
-			//system(qPrintable(QString("cp %1 /tmp/output.pnm").arg(scanPath)));
+			mwc->setSensitive();
 		}
 	else
-		mwc->loadImage(previewPath);
+		{
+			mwc->loadImage(previewPath);
+		}
 }
 
 QImage ScannerClass::getPreviewImage(QString filepath)

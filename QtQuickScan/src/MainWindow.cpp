@@ -233,8 +233,9 @@ void MainWindowClass::loadImage(QString filename)
 
 void MainWindowClass::setSensitive(void)
 {
-	qDebug()<<"TODO";
-	this->resoMenu->actions().at(0)->setChecked(true);
-	
-	
+	bool enable;
+
+	enable=QFileInfo::exists(scanPath);
+	for(int j=DIV1;j<DIV2;j++)
+		this->fileMenu->actions().at(j)->setEnabled(enable);	
 }
