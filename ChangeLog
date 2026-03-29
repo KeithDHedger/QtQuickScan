@@ -1,4 +1,8 @@
 0.0.5
+Save main window geometry.
+Added prefs class.
+Set window title.
+Added app icon.
 Added open in gimp.
 Set file menu items sensitive.
 Reset default resolution before switching devices.

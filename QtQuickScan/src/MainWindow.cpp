@@ -22,6 +22,15 @@
 
 MainWindowClass::~MainWindowClass()
 {
+	QSettings	settings("KDHedger",PACKAGE_NAME);
+	QRect		rg;
+	QRect		rf;
+
+	rg=this->geometry();
+	rf=this->frameGeometry();
+	rf.setHeight(rf.height()-(rf.height()-rg.height()));
+	rf.setWidth(rf.width()-(rf.width()-rg.width()));
+	settings.setValue("app/geometry",rf);
 }
 
 void MainWindowClass::setFileMenu(void)
@@ -206,6 +215,30 @@ MainWindowClass::MainWindowClass()
 {
 	QVBoxLayout	*layout=new QVBoxLayout;
 	QWidget		*widg=new QWidget;
+	QSettings	settings("KDHedger",PACKAGE_NAME);
+	QRect		r(50,50,800,600);
+
+	r=settings.value("app/geometry",QVariant(r)).value<QRect>();
+
+	this->setGeometry(r);
+	this->label=new QLabel;
+	this->label->setText("Loading Device Info ...");
+
+	layout->addWidget(this->label);
+	layout->setAlignment(Qt::AlignCenter);
+
+	widg->setLayout(layout);
+	this->setCentralWidget(widg);
+//>>> yucky
+	widg->show();
+	this->show();
+	this->repaint();
+	widg->repaint();
+	qApp->processEvents();
+	qApp->processEvents();
+	qApp->processEvents();
+//<<<
+	this->setWindowTitle("QtQuickScan");
 
 	this->setFileMenu();
 	this->setDeviceMenu();
@@ -213,16 +246,6 @@ MainWindowClass::MainWindowClass()
 	this->setColourMenu();
 
 	this->setMenuBar(&this->menuBar);
-
-	this->setGeometry(540,320,800,600);
-
-	this->label=new QLabel;
-
-	layout->addWidget(this->label);
-	layout->setAlignment(Qt::AlignCenter);
-
-	widg->setLayout(layout);
-	this->setCentralWidget(widg);
 }
 
 void MainWindowClass::closeEvent(QCloseEvent *event)

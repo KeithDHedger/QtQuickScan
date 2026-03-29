@@ -21,32 +21,51 @@
 #ifndef _GLOBALS_
 #define _GLOBALS_
 
-#include <QApplication>
-#include <QMainWindow>
-#include <QCloseEvent>
-#include <QMenuBar>
 #include <QActionGroup>
-#include <QVBoxLayout>
-#include <QImage>
-#include <QLabel>
+#include <QApplication>
+#include <QCheckBox>
+#include <QCloseEvent>
+#include <QColorDialog>
+#include <QComboBox>
+#include <QDialog>
 #include <QFile>
+#include <QFileDialog>
 #include <QFileInfo>
+#include <QFontDialog>
+#include <QHBoxLayout>
+#include <QImage>
 #include <QImageReader>
 #include <QImageWriter>
+#include <QLabel>
+#include <QLineEdit>
+#include <QMainWindow>
+#include <QMenuBar>
+#include <QMessageBox>
 #include <QProcess>
+#include <QPushButton>
+#include <QSettings>
+#include <QSpinBox>
+#include <QSplashScreen>
+#include <QString>
+#include <QVBoxLayout>
+#include <QWidget>
 
 #include <sane/sane.h>
 #include <unistd.h>
 
+#include "../../config.h"
+
 #include "Utilities.h"
 class UtilitiesClass;
+
+#include "QT_prefsWidgets.h"
+class prefsWidgetsClass;
 
 #include "Scanner.h"
 class ScannerClass;
 
 #include "MainWindow.h"
 class MainWindowClass;
-
 
 #define BUFFERSIZE 1048510
 

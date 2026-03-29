@@ -25,6 +25,9 @@ int main(int argc,char** argv)
 	QApplication	app(argc,argv);
 	char			tmpfoldertemplate[]="/tmp/QtQuickScan-XXXXXX";
 
+//	QSplashScreen ss=QSplashScreen(QString(DATADIR)+"/pixmaps/QtQuickScan.png",Qt::FramelessWindowHint|Qt::X11BypassWindowManagerHint);
+//	ss.show();
+	//qApp->processEvents();
 	tmpFolderPath=mkdtemp(tmpfoldertemplate);
 	if(tmpFolderPath.isEmpty()==true)
 		{
@@ -34,11 +37,13 @@ int main(int argc,char** argv)
 
 	previewPath=QString("%1/preview.pnm").arg(tmpFolderPath);
 	scanPath=QString("%1/scan.pnm").arg(tmpFolderPath);
-
+	
 	mwc=new MainWindowClass;
 	mwc->show();
+
 	mwc->loadImage(scanPath);
 	mwc->scanner.setDevice(mwc->scanner.deviceName);
+	//ss.hide();
 
 	app.exec();
 

@@ -196,6 +196,8 @@ void ScannerClass::setDevice(QString devname)
 			//this->colourMode="Color";???
 			//mwc->colourMenu->actions().at(0)->setChecked(true);???
 			mwc->setSensitive();
+			mwc->setWindowTitle(QString("QtQuickScan - %1").arg(devname));
+
 		}
 	else
 		qDebug()<<"Failed to open"<<devname;
