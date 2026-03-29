@@ -1,6 +1,6 @@
 #
 #
-AC_INIT([QtQuickScan],[0.0.5],[PROJ],[QtQuickScan])
+AC_INIT([QtQuickScan],[0.0.6],[PROJ],[QtQuickScan])
 
 AC_CONFIG_HEADERS([config.h])
 AC_PROG_CXX

@@ -1,3 +1,7 @@
+0.0.6
+Now remembers last folder saved in , filename, type.
+Added save option for more file formats.
+
 0.0.5
 Save main window geometry.
 Added prefs class.

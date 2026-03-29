@@ -26,13 +26,32 @@ UtilitiesClass::~UtilitiesClass()
 
 UtilitiesClass::UtilitiesClass()
 {
+	QSettings	settings("KDHedger",PACKAGE_NAME);
+	this->lastDir=settings.value("app/dir",this->lastDir).toString();
+	this->lastName=settings.value("app/name",this->lastName).toString();
+	this->lastSFX=settings.value("app/sfx",this->lastSFX).toString();
+
 }
 
-void UtilitiesClass::convertImage(QString type)
+void UtilitiesClass::convertImage(QString type,QString dir,QString name)
 {
-	const QString inPath=scanPath;
-	const QString outPath=QString("/tmp/output.%1").arg(type);
-	const QString outFormat=type; // or "png", "webp", etc.
+	QString inPath=scanPath;
+	QString outPath;
+	QString outdir=dir;
+	QString outname=name;
+	QString outsfx=type;
+
+	if(type.isEmpty()==true)
+		outsfx=this->lastSFX;
+	if(dir.isEmpty()==true)
+		outdir=this->lastDir;
+	if(name.isEmpty()==true)
+		outname=this->lastName;
+
+	outPath=QString("%1/%2.%3").arg(outdir).arg(outname).arg(outsfx);
+	this->lastDir=outdir;
+	this->lastName=outname;
+	this->lastSFX=outsfx;
 
 	if(type=="pnm")
 		{
@@ -56,7 +75,7 @@ void UtilitiesClass::convertImage(QString type)
 			return;
 		}
 
-	QImageWriter writer(outPath,outFormat.toUtf8());
+	QImageWriter writer(outPath,outsfx.toUtf8());
 	// Set quality 0-100 (only used by some formats like JPEG, WebP)
 	writer.setQuality(100);
 	// Optionally set compression (PNG): writer.setCompression(9);

@@ -31,6 +31,9 @@ MainWindowClass::~MainWindowClass()
 	rf.setHeight(rf.height()-(rf.height()-rg.height()));
 	rf.setWidth(rf.width()-(rf.width()-rg.width()));
 	settings.setValue("app/geometry",rf);
+	settings.setValue("app/name",this->utils.lastName);
+	settings.setValue("app/dir",this->utils.lastDir);
+	settings.setValue("app/sfx",this->utils.lastSFX);
 }
 
 void MainWindowClass::setFileMenu(void)
@@ -83,6 +86,12 @@ void MainWindowClass::setFileMenu(void)
 				{
 					case OPENINGIMPITEM:
 						QProcess::startDetached("gimp",QStringList()<<qPrintable(scanPath));
+						break;
+					case SAVEITEM:
+						{
+							QString filepath=QFileDialog::getSaveFileName(this,"Select file",this->utils.lastDir+"/"+this->utils.lastName+"."+this->utils.lastSFX,"All Images (*.png *.jpg *.jpeg *.bmp *.tif *.tiff *.webp *.pbm *.pgm *.ppm *.xbm *.xpm *.pnm)");
+							this->utils.convertImage(QFileInfo(filepath).completeSuffix(),QFileInfo(filepath).absolutePath(),QFileInfo(filepath).baseName());
+						}
 						break;
 					case SAVEASJPGITEM:
 						this->utils.convertImage("jpg");

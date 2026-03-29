@@ -27,9 +27,11 @@ class UtilitiesClass
 		UtilitiesClass();
 		~UtilitiesClass();
 
-		void		convertImage(QString type);
+		QString	lastDir="/tmp";
+		QString	lastName="output";
+		QString	lastSFX="pnm";
 
-	private:
+		void		convertImage(QString type="",QString dir="",QString name="");
 };
 
 #endif

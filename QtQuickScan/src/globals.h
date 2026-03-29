@@ -49,6 +49,7 @@
 #include <QString>
 #include <QVBoxLayout>
 #include <QWidget>
+#include <QPluginLoader>
 
 #include <sane/sane.h>
 #include <unistd.h>
