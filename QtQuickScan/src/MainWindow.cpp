@@ -90,17 +90,17 @@ void MainWindowClass::setFileMenu(void)
 					case SAVEITEM:
 						{
 							QString filepath=QFileDialog::getSaveFileName(this,"Select file",this->utils.lastDir+"/"+this->utils.lastName+"."+this->utils.lastSFX,"All Images (*.png *.jpg *.jpeg *.bmp *.tif *.tiff *.webp *.pbm *.pgm *.ppm *.xbm *.xpm *.pnm)");
-							this->utils.convertImage(QFileInfo(filepath).completeSuffix(),QFileInfo(filepath).absolutePath(),QFileInfo(filepath).baseName());
+							this->utils.convertImage(scanPath,QFileInfo(filepath).completeSuffix(),QFileInfo(filepath).absolutePath(),QFileInfo(filepath).baseName());
 						}
 						break;
 					case SAVEASJPGITEM:
-						this->utils.convertImage("jpg");
+						this->utils.convertImage(scanPath,"jpg");
 						break;
 					case SAVEASPNGITEM:
-						this->utils.convertImage("png");
+						this->utils.convertImage(scanPath,"png");
 						break;
 					case SAVEASPNMITEM:
-						this->utils.convertImage("pnm");
+						this->utils.convertImage(scanPath,"pnm");
 						break;
 					case QUITITEM:
 						qApp->exit();
@@ -115,6 +115,47 @@ void MainWindowClass::setFileMenu(void)
 						break;
 				}
 		});
+}
+
+QMenu* MainWindowClass::setHelpMenu(QMenuBar *menubar)
+{
+	QActionGroup		*actions;
+	QAction			*act;
+	QMenu			*menu;
+
+	menu=menubar->addMenu("&Help");
+	actions=new QActionGroup(menu);
+	actions->setExclusive(true);
+
+	act=new QAction(QIcon::fromTheme("help-about"),"About",actions);
+	act->setData(ABOUTITEM);
+
+	act=new QAction(QIcon::fromTheme("help-about"),"About QT",actions);
+	act->setData(ABOUTQTITEM);
+
+	act=new QAction(QIcon::fromTheme("help-contents"),"Help",actions);
+	act->setData(HELPITEM);
+
+	act=new QAction(actions);
+	act->setSeparator(true);
+
+	menu->addActions(actions->actions());
+	QObject::connect(actions,&QActionGroup::triggered,this,[this](QAction *action)
+		{
+			switch(action->data().toInt())
+				{
+					case ABOUTITEM:
+						this->utils.doAbout();
+						break;
+					case ABOUTQTITEM:
+						QMessageBox::aboutQt(nullptr);
+						break;
+					case HELPITEM:
+						this->utils.showHTML();
+						break;
+				}
+		});
+	return(menu);
 }
 
 void MainWindowClass::setDeviceMenu(void)
@@ -253,6 +294,19 @@ MainWindowClass::MainWindowClass()
 	this->setDeviceMenu();
 	this->setResoMenu();
 	this->setColourMenu();
+
+	this->helpMenu=setHelpMenu(&this->menuBar);
+
+	this->utils.aboutText="Simple scanner frontend for QT6\n\n©K.D.Hedger 2026\n\n<a href=\"" GLOBALWEBSITE "\">Homepage</a>\n\n<a href=\"mailto:" MYEMAIL "\">Email Me</a>";
+	this->utils.docPath=QString("%1/docs/help.html").arg(DATADIR);
+	if(QFileInfo::exists(this->utils.docPath)==false)
+		this->utils.docPath=QFileInfo("../resources/docs/help.html").canonicalFilePath();
+
+	this->utils.pathToIcon=QString("%1/pixmaps/QtQuickScan.png").arg(DATADIR);
+	if(QFileInfo::exists(this->utils.pathToIcon)==false)
+		this->utils.pathToIcon=QFileInfo("../resources/pixmaps/QtQuickScan.png").canonicalFilePath();
+
+	this->utils.appName=PACKAGE_NAME;
 
 	this->setMenuBar(&this->menuBar);
 }

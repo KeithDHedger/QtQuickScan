@@ -35,6 +35,7 @@ class MainWindowClass: public QMainWindow
 		QMenu			*deviceMenu=NULL;
 		QMenu			*resoMenu=NULL;
 		QMenu			*colourMenu=NULL;
+		QMenu			*helpMenu=NULL;
 		QLabel			*label;
 
 		ScannerClass		scanner;
@@ -49,6 +50,7 @@ class MainWindowClass: public QMainWindow
 		void				setDeviceMenu(void);
 		void				setResoMenu(void);
 		void				setColourMenu(void);
+		QMenu			*setHelpMenu(QMenuBar *menubar);
 
 	protected:
 	    void				closeEvent(QCloseEvent *event) override;

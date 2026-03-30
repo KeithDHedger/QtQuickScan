@@ -5,7 +5,7 @@ Just started so lots to do yet.
   
 Usable,but at the moment you can only set resolution,select the device and set colour.  
 
-Images are hardcoded ( for now ) as pnm images sent to "/tmp/output.[jpg/png/pnm]"
+~~Images are hardcoded ( for now ) as pnm images sent to "/tmp/output.[jpg/png/pnm]"~~  
 
 To compile use:
 ```code
@@ -16,7 +16,7 @@ Optional:
 sudo make install
 ```
   
-The app  can be run directly from the app folder ( for now ) without installing.  
+The app  can be run directly from the app folder ( for now ) without installing ( the help files may not display correctly unless installed ).  
 DEPS:  
 libsane + libsane development files  
 Qt6 ( may run on Qt5 but you need to adjust the configure.ac file ).  
@@ -24,14 +24,14 @@ Qt6 ( may run on Qt5 but you need to adjust the configure.ac file ).
 TODO ( in no particular order ):  
 More options.  
 ~~Previews.~~  
-Output filename.  
+~~Output filename.~~  
 ~~Image conversions.~~ ( Partley done ( jpg/png/pnm )  
-Set menu items when changing device etc.
+~~Set menu items when changing device etc.~~
 Prefs  
 Save current prefs  
 Progress bar.  
 Error messages (GUI)  
-About.  
-Help.  
+~~About.~~  
+~~Help.~~  
 
 Etc. Etc.  

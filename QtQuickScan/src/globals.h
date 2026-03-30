@@ -49,7 +49,13 @@
 #include <QString>
 #include <QVBoxLayout>
 #include <QWidget>
-#include <QPluginLoader>
+#include <QString>
+#include <QImageWriter>
+#include <QImageReader>
+#include <QSettings>
+#include <QMessageBox>
+#include <QTextBrowser>
+#include <QDialogButtonBox>
 
 #include <sane/sane.h>
 #include <unistd.h>
@@ -70,6 +76,7 @@ class MainWindowClass;
 
 #define BUFFERSIZE 1048510
 
+enum helpEnums{ABOUTITEM=600,ABOUTQTITEM,HELPITEM};
 enum fileEnums {PREVIEWITEM=1,SCANITEM,DIV1,OPENINGIMPITEM,DIV3,SAVEITEM,SAVEASJPGITEM,SAVEASPNGITEM,SAVEASPNMITEM,DIV2,QUITITEM};
 
 extern MainWindowClass	*mwc;

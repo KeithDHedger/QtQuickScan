@@ -8,8 +8,8 @@ qtquickscan_SOURCES = $(COMMONSRC)
 pixfilesdir = $(pkgdatadir)/pixmaps
 pixfiles_DATA = ../resources/pixmaps/*
 
-scriptfilesdir = $(pkgdatadir)/scripts
-scriptfiles_SCRIPTS = ../resources/scripts/README
+docfilesdir = $(pkgdatadir)/docs
+docfiles_SCRIPTS = ../resources/docs/*
 
 bin_PROGRAMS = qtquickscan
 

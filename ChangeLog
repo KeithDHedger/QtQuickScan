@@ -1,4 +1,6 @@
 0.0.6
+Added help menu.
+If last used OP dir removed output dir defaults to "/tmp".
 Now remembers last folder saved in , filename, type.
 Added save option for more file formats.
 

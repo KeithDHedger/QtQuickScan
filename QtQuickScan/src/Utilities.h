@@ -21,17 +21,29 @@
 #ifndef _UTILITIES_
 #define _UTILITIES_
 
+#define GLOBALWEBSITE "https://keithdhedger.github.io"
+#define MYEMAIL "kdhedger68713@gmail.com"
+
 class UtilitiesClass
 {
 	public:
 		UtilitiesClass();
 		~UtilitiesClass();
 
+//images
 		QString	lastDir="/tmp";
 		QString	lastName="output";
 		QString	lastSFX="pnm";
+		void		convertImage(QString inpath,QString type="",QString dir="",QString name="");
 
-		void		convertImage(QString type="",QString dir="",QString name="");
+//help
+		QString	aboutText;
+		QString	pathToIcon;
+		QString	docPath;
+		QString	appName;
+
+		void		doAbout(void);
+		void		showHTML(void);
 };
 
 #endif
