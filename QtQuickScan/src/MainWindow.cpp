@@ -34,6 +34,8 @@ MainWindowClass::~MainWindowClass()
 	settings.setValue("app/name",this->utils.lastName);
 	settings.setValue("app/dir",this->utils.lastDir);
 	settings.setValue("app/sfx",this->utils.lastSFX);
+
+	//delete this->prefs;
 }
 
 void MainWindowClass::setFileMenu(void)
@@ -106,12 +108,18 @@ void MainWindowClass::setFileMenu(void)
 						qApp->exit();
 						break;
 					case SCANITEM:
+						this->scanner.setOption("tl-x","0");
+						this->scanner.setOption("tl-y","0");
+						this->scanner.setOption("br-x",qPrintable(QString("%1").arg(this->scanner.paperWidth)));
+						this->scanner.setOption("br-y",qPrintable(QString("%1").arg(this->scanner.paperHeight)));
 						this->scanner.scanImage(false);
-						qDebug()<<this->scanner.deviceName<<this->scanner.resolution<<this->scanner.colourMode;
 						break;
 					case PREVIEWITEM:
+						this->scanner.setOption("tl-x","0");
+						this->scanner.setOption("tl-y","0");
+						this->scanner.setOption("br-x",qPrintable(QString("%1").arg(this->scanner.paperWidth)));
+						this->scanner.setOption("br-y",qPrintable(QString("%1").arg(this->scanner.paperHeight)));
 						this->scanner.scanImage(true);
-						qDebug()<<this->scanner.deviceName<<this->scanner.resolution<<this->scanner.colourMode;
 						break;
 				}
 		});
@@ -152,6 +160,94 @@ QMenu* MainWindowClass::setHelpMenu(QMenuBar *menubar)
 						break;
 					case HELPITEM:
 						this->utils.showHTML();
+						break;
+				}
+		});
+	return(menu);
+}
+
+QMenu* MainWindowClass::setCropMenu(QMenuBar *menubar)
+{
+	QActionGroup		*actions;
+	QAction			*act;
+	QMenu			*menu;
+
+	menu=menubar->addMenu("&Selection");
+	actions=new QActionGroup(menu);
+	actions->setExclusive(true);
+
+	act=new QAction("Crop",actions);
+	act->setData(CROPTORECTITEM);
+	act->setEnabled(false);
+
+	act=new QAction("Hide Selection",actions);
+	act->setData(HIDESELITEM);
+	act->setEnabled(false);
+
+	act=new QAction("Show Selection",actions);
+	act->setData(SHOWSELITEM);
+	act->setEnabled(false);
+
+	act=new QAction("Clear Selection",actions);
+	act->setData(CLEARSELITEM);
+	act->setEnabled(false);
+
+	menu->addActions(actions->actions());
+	QObject::connect(actions,&QActionGroup::triggered,this,[this,actions](QAction *action)
+		{
+			switch(action->data().toInt())
+				{
+					case CROPTORECTITEM:
+						{
+							double resd;
+							double labeldim;
+							double paperdim;
+							double mult;
+
+							this->scanner.setOption("tl-x","0");
+							this->scanner.setOption("tl-y","0");
+							this->scanner.setOption("br-x",qPrintable(QString("%1").arg(this->scanner.paperWidth)));
+							this->scanner.setOption("br-y",qPrintable(QString("%1").arg(this->scanner.paperHeight)));
+
+							if(this->label1->selectionRect.width()>0)
+								{
+									labeldim=(double)this->label1->geometry().height();
+									paperdim=(double)this->scanner.paperHeight;
+									mult=(double)this->label1->selectionRect.height()+this->label1->selectionRect.top();
+									resd=paperdim/labeldim*mult;
+									this->scanner.setOption("br-y",qPrintable(QString("%1").arg(resd)));
+
+									mult=(double)this->label1->selectionRect.top();
+									resd=paperdim/labeldim*mult;
+									this->scanner.setOption("tl-y",qPrintable(QString("%1").arg(resd)));
+
+									labeldim=(double)this->label1->geometry().width();
+									paperdim=(double)this->scanner.paperWidth;
+									mult=(double)this->label1->selectionRect.width()+this->label1->selectionRect.left();
+									resd=paperdim/labeldim*mult;
+									this->scanner.setOption("br-x",qPrintable(QString("%1").arg(resd)));
+
+									mult=(double)this->label1->selectionRect.left();
+									resd=paperdim/labeldim*mult;
+									this->scanner.setOption("tl-x",qPrintable(QString("%1").arg(resd)));
+
+									this->scanner.scanImage(false);
+								}
+						}
+						break;
+					case HIDESELITEM:
+						this->label1->rubberBand->hide();
+						break;
+					case SHOWSELITEM:
+						this->label1->rubberBand->show();
+						break;
+					case CLEARSELITEM:
+						this->label1->resize=false;
+						this->label1->rubberBand->hide(); 
+						this->label1->rubberBand->setGeometry(QRect(0,0,0,0));
+						this->label1->selectionRect=QRect(0,0,0,0);
+						for(int j=0;j<this->cropMenu->actions().size();j++)
+							this->cropMenu->actions().at(j)->setEnabled(false);
 						break;
 				}
 		});
@@ -269,12 +365,15 @@ MainWindowClass::MainWindowClass()
 	QRect		r(50,50,800,600);
 
 	r=settings.value("app/geometry",QVariant(r)).value<QRect>();
-
 	this->setGeometry(r);
-	this->label=new QLabel;
-	this->label->setText("Loading Device Info ...");
 
-	layout->addWidget(this->label);
+this->prefs.setPrefsName(PACKAGE_NAME);
+
+
+	this->label1=new ImageLabelClass;
+	this->label1->setText("Loading Device Info ...");
+
+	layout->addWidget(this->label1);
 	layout->setAlignment(Qt::AlignCenter);
 
 	widg->setLayout(layout);
@@ -295,6 +394,7 @@ MainWindowClass::MainWindowClass()
 	this->setResoMenu();
 	this->setColourMenu();
 
+	this->cropMenu=setCropMenu(&this->menuBar);
 	this->helpMenu=setHelpMenu(&this->menuBar);
 
 	this->utils.aboutText="Simple scanner frontend for QT6\n\n©K.D.Hedger 2026\n\n<a href=\"" GLOBALWEBSITE "\">Homepage</a>\n\n<a href=\"mailto:" MYEMAIL "\">Email Me</a>";
@@ -307,8 +407,16 @@ MainWindowClass::MainWindowClass()
 		this->utils.pathToIcon=QFileInfo("../resources/pixmaps/QtQuickScan.png").canonicalFilePath();
 
 	this->utils.appName=PACKAGE_NAME;
+	this->prefs.setPrefsName(PACKAGE_NAME);
 
 	this->setMenuBar(&this->menuBar);
+	
+	this->utils.lastDir=this->prefs.getFilePref("app/dir");
+	this->utils.lastName=this->prefs.getFilePref("app/name");
+	this->utils.lastSFX=this->prefs.getFilePref("app/sfx");
+
+	if(QFileInfo::exists(this->utils.lastDir)==false)
+		this->utils.lastDir="/tmp";
 }
 
 void MainWindowClass::closeEvent(QCloseEvent *event)
@@ -321,9 +429,9 @@ void MainWindowClass::loadImage(QString filename)
 	if(QFileInfo::exists(filename)==false)
 		return;
 
-	QImage image=scanner.getPreviewImage(filename);
+	QImage image(filename,"pnm");
 	QImage image2=image.scaled(this->width()-50,this->height()-50,Qt::KeepAspectRatio);
-	mwc->label->setPixmap(QPixmap::fromImage(image2));
+	mwc->label1->setPixmap(QPixmap::fromImage(image2));
 }
 
 void MainWindowClass::setSensitive(void)
@@ -332,5 +440,18 @@ void MainWindowClass::setSensitive(void)
 
 	enable=QFileInfo::exists(scanPath);
 	for(int j=DIV1;j<DIV2;j++)
-		this->fileMenu->actions().at(j)->setEnabled(enable);	
+		this->fileMenu->actions().at(j)->setEnabled(enable);
+
+	this->cropMenu->setEnabled(enable);
 }
+
+void MainWindowClass::resizeEvent(QResizeEvent *event)
+{
+	QWidget::resizeEvent(event);
+
+	if(QFileInfo::exists(scanPath))
+		this->loadImage(scanPath);
+	else if(QFileInfo::exists(previewPath))
+		this->loadImage(previewPath);
+}
+

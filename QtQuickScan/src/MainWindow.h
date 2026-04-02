@@ -31,37 +31,33 @@ class MainWindowClass: public QMainWindow
 		~MainWindowClass();
 
 		QMenuBar			menuBar;
-		QMenu			*fileMenu=NULL;
-		QMenu			*deviceMenu=NULL;
-		QMenu			*resoMenu=NULL;
-		QMenu			*colourMenu=NULL;
-		QMenu			*helpMenu=NULL;
-		QLabel			*label;
+		QMenu				*fileMenu=NULL;
+		QMenu				*deviceMenu=NULL;
+		QMenu				*resoMenu=NULL;
+		QMenu				*colourMenu=NULL;
+		QMenu				*helpMenu=NULL;
+		QMenu				*cropMenu=NULL;
 
-		ScannerClass		scanner;
-		UtilitiesClass	utils;
+		prefsWidgetsClass	prefs;
+		ImageLabelClass		*label1;
+		ScannerClass			scanner;
+		UtilitiesClass		utils;
 
-		void				loadImage(QString filename);
-		void				setSensitive(void);
+		void					loadImage(QString filename);
+		void					setSensitive(void);
 
 	private:
-		bool				gotScan=false;
-		void				setFileMenu(void);
-		void				setDeviceMenu(void);
-		void				setResoMenu(void);
-		void				setColourMenu(void);
-		QMenu			*setHelpMenu(QMenuBar *menubar);
+		bool					gotScan=false;
+		void					setFileMenu(void);
+		void					setDeviceMenu(void);
+		void					setResoMenu(void);
+		void					setColourMenu(void);
+		QMenu				*setHelpMenu(QMenuBar *menubar);
+		QMenu				*setCropMenu(QMenuBar *menubar);
 
 	protected:
-	    void				closeEvent(QCloseEvent *event) override;
-		void				resizeEvent(QResizeEvent *event)	override
-			{
-				QWidget::resizeEvent(event);
-				if(QFileInfo::exists(scanPath))
-					this->loadImage(scanPath);
-				else if(QFileInfo::exists(previewPath))
-					this->loadImage(previewPath);
-			}
+	    void					closeEvent(QCloseEvent *event) override;
+		void					resizeEvent(QResizeEvent *event)	override;
 };
 
 #endif

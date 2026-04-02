@@ -1,4 +1,8 @@
 0.0.6
+Updated help.
+Preview/Scan now much faster.
+Added QT_prefsWidgets class.
+Added simple crop image.
 Added help menu.
 If last used OP dir removed output dir defaults to "/tmp".
 Now remembers last folder saved in , filename, type.

@@ -56,17 +56,25 @@
 #include <QMessageBox>
 #include <QTextBrowser>
 #include <QDialogButtonBox>
+#include <QRubberBand>
 
 #include <sane/sane.h>
 #include <unistd.h>
+#include <iostream>
+#include <sys/time.h>
 
 #include "../../config.h"
+
+#include "QT_prefsWidgets.h"
+class prefsWidgetsClass;
+
+#include "ImageLabel.h"
+class ImageLabelClass;
 
 #include "Utilities.h"
 class UtilitiesClass;
 
-#include "QT_prefsWidgets.h"
-class prefsWidgetsClass;
+
 
 #include "Scanner.h"
 class ScannerClass;
@@ -78,6 +86,7 @@ class MainWindowClass;
 
 enum helpEnums{ABOUTITEM=600,ABOUTQTITEM,HELPITEM};
 enum fileEnums {PREVIEWITEM=1,SCANITEM,DIV1,OPENINGIMPITEM,DIV3,SAVEITEM,SAVEASJPGITEM,SAVEASPNGITEM,SAVEASPNMITEM,DIV2,QUITITEM};
+enum cropEnums{CROPTORECTITEM=700,HIDESELITEM,SHOWSELITEM,CLEARSELITEM};
 
 extern MainWindowClass	*mwc;
 extern QString			tmpFolderPath;

@@ -15,11 +15,13 @@ class	prefsWidgetsClass
 {
 	public:
 		prefsWidgetsClass(QString prefsname,QWidget *parent=nullptr);
+		prefsWidgetsClass();
 		~prefsWidgetsClass();
 
 		QDialog					*window=NULL;
 		bool						getAsFolder=false;
 
+		void						setPrefsName(QString name);
 		void						startWindow(QString wname);
 		void						addWidgetToWindow(QWidget *widget);
 		void						finishWindow(bool addclear=false);

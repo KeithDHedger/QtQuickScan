@@ -26,13 +26,6 @@ UtilitiesClass::~UtilitiesClass()
 
 UtilitiesClass::UtilitiesClass()
 {
-	QSettings	settings("KDHedger",PACKAGE_NAME);
-	this->lastDir=settings.value("app/dir",this->lastDir).toString();
-	this->lastName=settings.value("app/name",this->lastName).toString();
-	this->lastSFX=settings.value("app/sfx",this->lastSFX).toString();
-
-	if(QFileInfo::exists(this->lastDir)==false)
-		this->lastDir="/tmp";
 }
 
 void UtilitiesClass::convertImage(QString inpath,QString type,QString dir,QString name)

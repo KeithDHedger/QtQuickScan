@@ -96,19 +96,40 @@ void ScannerClass::getOption(const char *optname)
 					sane_control_option(this->hdl,i,SANE_ACTION_GET_VALUE,val,0);
 					switch(opt->type)
 						{
+							//if(desc->constraint_type==SANE_CONSTRAINT_RANGE)
 							case SANE_TYPE_BOOL:
 								qDebug()<<"bool TODO";
 								break;
 							case SANE_TYPE_INT:
 								resol=*(SANE_Int *)val;
-								//qDebug()<<"SANE_TYPE_INT getOption"<<optname<<resol;
+								qDebug()<<"SANE_TYPE_INT constraint_type"<<opt->constraint_type;
+								if(opt->constraint_type)
+									{
+										this->rangeIntFrom=SANE_UNFIX(opt->constraint.range->min);
+										this->rangeIntTo=SANE_UNFIX(opt->constraint.range->max);
+									}
+								else
+									this->fixedVal=resol;
+								qDebug()<<"SANE_TYPE_INT getOption"<<optname<<resol;
+								
 								break;
 							case SANE_TYPE_FIXED:
 								resol=(int)(SANE_UNFIX(*(SANE_Fixed *)val)+0.5);
+								////qDebug()<<"SANE_TYPE_FIXED constraint_type"<<opt->constraint_type;
 								//qDebug()<<"SANE_TYPE_FIXED getOption"<<optname<<resol;
+								//qDebug()<<"SANE_TYPE_FIXED"<<SANE_UNFIX (opt->constraint.range->min)<<SANE_UNFIX (opt->constraint.range->max);
+								if(opt->constraint_type)
+									{
+										this->rangeDoubleFrom=SANE_UNFIX(opt->constraint.range->min);
+										this->rangeDoubleTo=SANE_UNFIX(opt->constraint.range->max);
+									}
+								else
+									this->fixedVal=resol;
+
 								break;
 							case SANE_TYPE_STRING:
-								//qDebug()<<"string"<<optname<<QString("%1").arg((char*)val);
+								qDebug()<<"SANE_TYPE_STRING constraint_type"<<opt->constraint_type;
+								qDebug()<<"SANE_TYPE_STRING"<<optname<<QString("%1").arg((char*)val);
 								break;
 							case SANE_TYPE_BUTTON:
 							case SANE_TYPE_GROUP:
@@ -138,24 +159,25 @@ bool ScannerClass::setOption(const char *optname,const void *value)
 							//	break;
 							case SANE_TYPE_INT://1
 								{
-									//fprintf(stderr,"SANE_TYPE_INT>>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
+									fprintf(stderr,"SANE_TYPE_INT>>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
 									SANE_Int res=atoi((const char*)value);
 									s=sane_control_option(this->hdl,i,SANE_ACTION_SET_VALUE,&res,0);
 								}
 								break;
 							case SANE_TYPE_FIXED://2
 								{
-									//fprintf(stderr,"SANE_TYPE_FIXED>>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
+									fprintf(stderr,"SANE_TYPE_FIXED>>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
 									SANE_Word res=SANE_FIX(atoi((const char*)value));
+									fprintf(stderr,"SANE_TYPE_FIXED val=%g\n",res);
 									s=sane_control_option(this->hdl,i,SANE_ACTION_SET_VALUE,&res,0);
 								}
 								break;
 							case SANE_TYPE_STRING://3
-								//fprintf(stderr,"SANE_TYPE_STRING>>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
+								fprintf(stderr,"SANE_TYPE_STRING>>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
 								s=sane_control_option(this->hdl,i,SANE_ACTION_SET_VALUE,(void*)value,0);
  								break;
   							default:
-  								//fprintf(stderr,"default>>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
+  								fprintf(stderr,"default>>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
   								break;
 						}
 
@@ -190,14 +212,19 @@ void ScannerClass::setDevice(QString devname)
 			this->getOption("resolution");
 			this->getOption("test-picture");
 
+			this->getOption("tl-x");
+			this->paperWidth=this->rangeDoubleTo;
+			this->getOption("br-y");
+			this->paperHeight=this->rangeDoubleTo;
+
+
 			system(qPrintable(QString("rm %1 %2").arg(previewPath).arg(scanPath)));
-			mwc->label->setPixmap(QPixmap());
+			mwc->label1->setPixmap(QPixmap());
 			mwc->resoMenu->actions().at(0)->setChecked(true);
 			//this->colourMode="Color";???
 			//mwc->colourMenu->actions().at(0)->setChecked(true);???
 			mwc->setSensitive();
 			mwc->setWindowTitle(QString("QtQuickScan - %1").arg(devname));
-
 		}
 	else
 		qDebug()<<"Failed to open"<<devname;
@@ -215,29 +242,38 @@ void ScannerClass::scanImage(bool preview)
 	SANE_Parameters				params;
 	double						progr=0;
 	FILE							*out;
+	const char					*magic;
+	char							*formatstring;
+	int							bpp=1;
+	int							wid;
+	int							hite;
+	int							finalsize;
 
-	mwc->label->setText("");
+	mwc->label1->setText("");
 	qApp->processEvents();
+
+//timeval start, end;
+//gettimeofday(&start, NULL);
 
 // Typical option names: "resolution","br-x","br-y","tl-x","tl-y","mode"
 //for built in test scanners
-	setOption("test-picture","Color pattern");
+	this->setOption("test-picture","Color pattern");
 
-	setOption("mode",qPrintable(this->colourMode));
+	this->setOption("mode",qPrintable(this->colourMode));
 
 	if(preview==true)
 		{
-			setOption("resolution",qPrintable(this->defaultResolution));
+			this->setOption("resolution",qPrintable(this->defaultResolution));
 		}
 	else
 		{
 			if(this->resolution.isEmpty())
 				{
 					this->getDefaultResolution();
-					setOption("resolution",qPrintable(this->defaultResolution));
+					this->setOption("resolution",qPrintable(this->defaultResolution));
 				}
 			else
-				setOption("resolution",qPrintable(this->resolution));
+				this->setOption("resolution",qPrintable(this->resolution));
 		}
 
 	// Start the scan
@@ -248,20 +284,29 @@ void ScannerClass::scanImage(bool preview)
 	check(status,"sane_get_parameters");
 
 	// Determine PNM header
-	const char *magic=(params.format==SANE_FRAME_GRAY) ? "P5" : "P6";
+	magic=(params.format==SANE_FRAME_GRAY) ? "P5" : "P6";
+	asprintf(&formatstring,"%s\n%d %d\n255\n",magic,params.pixels_per_line,params.lines);
+
+	if(magic[1]=='6')
+		bpp=3;
+	wid=params.pixels_per_line*bpp;
+	hite=params.lines;
+
+	finalsize=wid*hite-1;
+	finalsize+=strlen(formatstring);
+	if(preview==true)
+		out=fopen(qPrintable(previewPath),"w");
+	else
+		out=fopen(qPrintable(scanPath),"w");
+   
+	fseek(out,finalsize,SEEK_SET);
+	fputc('\0',out);
+	fclose(out);
 
 	if(preview==true)
-		out=fopen(qPrintable(previewPath),"wb");
+		out=fopen(qPrintable(previewPath),"r+");
 	else
-		out=fopen(qPrintable(scanPath),"wb");
-
-	if(!out)
-		{
-			perror("fopen");
-			sane_close(this->hdl);
-			sane_exit();
-			return;
-		}
+		out=fopen(qPrintable(scanPath),"r+");
 	fprintf(out,"%s\n%d %d\n255\n",magic,params.pixels_per_line,params.lines);
 
 // Read loop
@@ -295,7 +340,8 @@ void ScannerClass::scanImage(bool preview)
 
 	fclose(out);
 
-	printf("Saved output.pnm (%d x %d)\n",params.pixels_per_line,params.lines);
+	printf("\nSaved output.pnm (%d x %d)\n",params.pixels_per_line,params.lines);
+
 	if(preview==false)
 		{
 			mwc->loadImage(scanPath);
@@ -305,66 +351,12 @@ void ScannerClass::scanImage(bool preview)
 		{
 			mwc->loadImage(previewPath);
 		}
+//fprintf(stderr,"\n");
+// gettimeofday(&end, NULL);
+//timeval result;
+//timersub(&end, &start, &result);
+//    double elapsedTime = result.tv_sec + result.tv_usec / 1000000.0;
+//qDebug()<<"Elapsed time: " << elapsedTime ;
 }
 
-QImage ScannerClass::getPreviewImage(QString filepath)
-{
-	QFile	file(filepath);
-	int		magic=0;
-	int		cols=0;
-	int		lines=0;
-	char		r,g,b;
-
-	if(!file.open(QIODevice::ReadOnly))
-		return(QImage());
-
-	QString mstr=file.readLine().trimmed();
-	QString sstr=file.readLine().trimmed();
-	QString wstr=sstr.section(" ",0,0);
-	QString hstr=sstr.section(" ",1,1);
-	QString lstr=file.readLine().trimmed();
-
-	cols=wstr.toInt();
-	lines=hstr.toInt();
-	if(mstr=="P6")
-		{
-			QImage image(cols,lines,QImage::Format_RGB888);
-			image.fill("white");
-			for(int y=0;y<lines;y++)
-				{
-					for(int x=0;x<cols;x++)
-						{
-							if(file.atEnd()==true)
-								return(image);
-							file.getChar(&r);
-							file.getChar(&g);
-							file.getChar(&b);
-							image.setPixel(x,y,qRgb(r,g,b));
-						}
-				}
-			return(image);
-		}
-
-	if(mstr=="P5")
-		{
-			QImage image(cols,lines,QImage::Format_Grayscale8);
-			image.fill("white");
-			for(int y=0;y<lines;y++)
-				{
-					for(int x=0;x<cols;x++)
-						{
-							if(file.atEnd()==true)
-								return(image);
-							file.getChar(&r);
-							g=r;
-							b=r;
-							image.setPixel(x,y,qRgb(r,g,b));
-						}
-				}
-			return(image);
-		}
-
-	file.close();
-	return(QImage());
-}
 

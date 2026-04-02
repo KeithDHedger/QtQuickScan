@@ -13,6 +13,15 @@ prefsWidgetsClass::prefsWidgetsClass(QString prefsname,QWidget *parent)
 	this->thePrefsName=prefsname;
 }
 
+prefsWidgetsClass::prefsWidgetsClass()
+{
+}
+
+void prefsWidgetsClass::setPrefsName(QString name)
+{
+	this->thePrefsName=name;
+}
+
 void prefsWidgetsClass::startWindow(QString wname)
 {
 	this->window=new QDialog;

@@ -25,7 +25,7 @@ TODO ( in no particular order ):
 More options.  
 ~~Previews.~~  
 ~~Output filename.~~  
-~~Image conversions.~~ ( Partley done ( jpg/png/pnm )  
+~~Image conversions.~~  
 ~~Set menu items when changing device etc.~~
 Prefs  
 Save current prefs  
