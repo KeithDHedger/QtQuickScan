@@ -19,13 +19,22 @@
 */
 
 #include "globals.h"
+#include <signal.h>
+
+void signalHandler(int signalNum)
+{
+	qApp->quit();
+}
 
 int main(int argc,char** argv)
 {
 	QApplication	app(argc,argv);
 	char			tmpfoldertemplate[]="/tmp/QtQuickScan-XXXXXX";
 
+	signal(SIGINT,signalHandler);
+
 	tmpFolderPath=mkdtemp(tmpfoldertemplate);
+
 	if(tmpFolderPath.isEmpty()==true)
 		{
 			qDebug()<<"Can't create temporary folder,quitting ...";

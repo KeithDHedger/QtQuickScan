@@ -57,6 +57,7 @@
 #include <QTextBrowser>
 #include <QDialogButtonBox>
 #include <QRubberBand>
+#include <QPainter>
 
 #include <sane/sane.h>
 #include <unistd.h>
@@ -74,8 +75,6 @@ class ImageLabelClass;
 #include "Utilities.h"
 class UtilitiesClass;
 
-
-
 #include "Scanner.h"
 class ScannerClass;
 
@@ -86,7 +85,7 @@ class MainWindowClass;
 
 enum helpEnums{ABOUTITEM=600,ABOUTQTITEM,HELPITEM};
 enum fileEnums {PREVIEWITEM=1,SCANITEM,DIV1,OPENINGIMPITEM,DIV3,SAVEITEM,SAVEASJPGITEM,SAVEASPNGITEM,SAVEASPNMITEM,DIV2,QUITITEM};
-enum cropEnums{CROPTORECTITEM=700,HIDESELITEM,SHOWSELITEM,CLEARSELITEM};
+enum cropEnums{CROPTORECTITEM=0,HIDESELITEM,SHOWSELITEM,CLEARSELITEM};
 
 extern MainWindowClass	*mwc;
 extern QString			tmpFolderPath;

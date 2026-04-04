@@ -262,9 +262,14 @@ void MainWindowClass::setDeviceMenu(void)
 	SANE_Status			status;
 	const SANE_Device	**device_list;
 
-	this->deviceMenu=this->menuBar.addMenu("&Devices");
+//	bool					dbgdev=false;
 
-	status=sane_get_devices (&device_list,SANE_FALSE);
+	if(this->deviceMenu==NULL)
+		{
+			this->deviceMenu=this->menuBar.addMenu("&Devices");
+//			dbgdev=true;
+		}	
+	status=sane_get_devices(&device_list,SANE_FALSE);
 	if(status!= SANE_STATUS_GOOD)
 		{
 			qDebug()<<"No scanners found ...";
@@ -272,6 +277,16 @@ void MainWindowClass::setDeviceMenu(void)
 		}
 
 	actions=new QActionGroup(this->deviceMenu);
+
+	act=new QAction("Reload Devices",actions);
+	act=new QAction(actions);
+	act->setSeparator(true);
+
+//	if(dbgdev==true)
+//		{
+//			act=new QAction("no device",actions);
+//			act->setCheckable(true);
+//		}
 
 	for(int j=0;device_list[j];++j)
 		{
@@ -288,8 +303,26 @@ void MainWindowClass::setDeviceMenu(void)
 	this->deviceMenu->addActions(actions->actions());
 	QObject::connect(actions,&QActionGroup::triggered,this,[this](QAction *action)
 		{
+			if(action->text()=="Reload Devices")
+				{
+					SANE_Status			status;
+					const SANE_Device	**device_list;
+
+					status=sane_get_devices(&device_list,SANE_FALSE);
+					this->deviceMenu->clear();
+					this->setDeviceMenu();
+					return;
+				}
 			this->scanner.setDevice(action->text());
-			this->scanner.getDefaultResolution();
+			if(this->scanner.hdl!=NULL)
+				this->scanner.getDefaultResolution();
+			else
+				{
+					this->deviceMenu->clear();
+					this->setDeviceMenu();
+					this->scanner.setDevice(this->scanner.deviceName);
+
+				}
 		});
 }
 
@@ -397,7 +430,7 @@ this->prefs.setPrefsName(PACKAGE_NAME);
 	this->cropMenu=setCropMenu(&this->menuBar);
 	this->helpMenu=setHelpMenu(&this->menuBar);
 
-	this->utils.aboutText="Simple scanner frontend for QT6\n\n©K.D.Hedger 2026\n\n<a href=\"" GLOBALWEBSITE "\">Homepage</a>\n\n<a href=\"mailto:" MYEMAIL "\">Email Me</a>";
+	this->utils.aboutText="<b>QtQuickScan</b>\n\nVersion " PACKAGE_VERSION "\n\nSimple scanner frontend for QT6\n\n©K.D.Hedger 2026\n\n<a href=\"" GLOBALWEBSITE "\">Homepage</a>\n\n<a href=\"mailto:" MYEMAIL "\">Email Me</a>";
 	this->utils.docPath=QString("%1/docs/help.html").arg(DATADIR);
 	if(QFileInfo::exists(this->utils.docPath)==false)
 		this->utils.docPath=QFileInfo("../resources/docs/help.html").canonicalFilePath();
@@ -430,8 +463,10 @@ void MainWindowClass::loadImage(QString filename)
 		return;
 
 	QImage image(filename,"pnm");
-	QImage image2=image.scaled(this->width()-50,this->height()-50,Qt::KeepAspectRatio);
-	mwc->label1->setPixmap(QPixmap::fromImage(image2));
+	//QImage image2=image.scaled(this->width()-50,this->height()-50,Qt::KeepAspectRatio);
+	this->image2=image.scaled(this->width()-50,this->height()-50,Qt::KeepAspectRatio);
+	///mwc->label1->setPixmap(QPixmap::fromImage(image2));
+	mwc->label1->setPixmap(QPixmap::fromImage(this->image2));
 }
 
 void MainWindowClass::setSensitive(void)

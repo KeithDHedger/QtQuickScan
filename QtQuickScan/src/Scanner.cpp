@@ -198,6 +198,7 @@ void ScannerClass::setDevice(QString devname)
 //reset def reso
 			setOption("resolution",qPrintable(this->defaultResolution));
 			sane_close(this->hdl);
+			this->hdl=NULL;
 		}
 	this->deviceName=devname;
 
@@ -219,12 +220,14 @@ void ScannerClass::setDevice(QString devname)
 
 
 			system(qPrintable(QString("rm %1 %2").arg(previewPath).arg(scanPath)));
+			mwc->cropMenu->actions().at(CLEARSELITEM)->activate(QAction::Trigger);
 			mwc->label1->setPixmap(QPixmap());
 			mwc->resoMenu->actions().at(0)->setChecked(true);
 			//this->colourMode="Color";???
 			//mwc->colourMenu->actions().at(0)->setChecked(true);???
 			mwc->setSensitive();
 			mwc->setWindowTitle(QString("QtQuickScan - %1").arg(devname));
+			return;
 		}
 	else
 		qDebug()<<"Failed to open"<<devname;

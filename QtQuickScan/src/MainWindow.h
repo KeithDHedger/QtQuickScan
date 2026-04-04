@@ -30,7 +30,7 @@ class MainWindowClass: public QMainWindow
 		MainWindowClass();
 		~MainWindowClass();
 
-		QMenuBar			menuBar;
+		QMenuBar				menuBar;
 		QMenu				*fileMenu=NULL;
 		QMenu				*deviceMenu=NULL;
 		QMenu				*resoMenu=NULL;
@@ -45,7 +45,7 @@ class MainWindowClass: public QMainWindow
 
 		void					loadImage(QString filename);
 		void					setSensitive(void);
-
+QImage image2;
 	private:
 		bool					gotScan=false;
 		void					setFileMenu(void);

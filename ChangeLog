@@ -1,3 +1,13 @@
+0.1.0
+Added selection resize/move.
+Added crop selection.
+Added drag select.
+
+0.0.7
+Added reload devices.
+Updated about.
+Trapped Ctrl-C.
+
 0.0.6
 Updated help.
 Preview/Scan now much faster.

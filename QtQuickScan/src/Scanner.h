@@ -33,6 +33,8 @@ class ScannerClass
 		QString		colourMode="Color";
 		double		paperWidth;
 		double		paperHeight;
+		SANE_Handle	hdl=NULL;
+
 		void			getDefaultResolution(void);
 		void			setDevice(QString devname);
 		void			scanImage(bool preview);
@@ -40,7 +42,6 @@ class ScannerClass
 		bool			setOption(const char *optname,const void *value);
 		void 		getOption(const char *optname);
 	private:
-		SANE_Handle	hdl=NULL;
 		double		rangeDoubleFrom;
 		double		rangeDoubleTo;
 		int			rangeIntFrom;
