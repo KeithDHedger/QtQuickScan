@@ -57,6 +57,8 @@ void MainWindowClass::setFileMenu(void)
 
 	act=new QAction(QIcon::fromTheme("document-open"),"Open In GIMP",actions);
 	act->setData(OPENINGIMPITEM);
+	act=new QAction(QIcon::fromTheme("document-print"),"Print",actions);
+	act->setData(PRINTITEM);
 
 	act=new QAction(actions);
 	act->setSeparator(true);
@@ -86,6 +88,28 @@ void MainWindowClass::setFileMenu(void)
 		{
 			switch(action->data().toInt())
 				{
+					case PRINTITEM:
+						{
+							QPrinter	printer(QPrinter::ScreenResolution);
+
+							printer.setOutputFileName(QString("%1/%2.pdf").arg(this->utils.lastDir).arg(this->utils.lastName));
+							if(this->scanner.resolution.toInt()>0)
+								printer.setResolution(this->scanner.resolution.toInt());
+							else
+								printer.setResolution(this->scanner.defaultResolution.toInt());
+
+							QPrintDialog	dialog(&printer,this);
+
+							if(dialog.exec()!=QDialog::Accepted)
+								return;
+
+							QImage		image(scanPath);
+							QPainter		painter(&printer);
+
+							painter.drawImage(0,0,image);
+							painter.end();
+						}
+						break;
 					case OPENINGIMPITEM:
 						QProcess::startDetached("gimp",QStringList()<<qPrintable(scanPath));
 						break;

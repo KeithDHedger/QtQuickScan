@@ -210,7 +210,20 @@ void ImageLabelClass::mouseMoveEvent(QMouseEvent *event)
 void ImageLabelClass::mouseReleaseEvent(QMouseEvent *event)
 {
 	this->resize=false;
+	QRect	r=this->rubberBand->geometry();
+
+	if(r.x()<0)
+		r.setLeft(0);
+	if(r.right()>this->geometry().right())
+		r.setRight(this->geometry().right());
+	if(r.top()<0)
+		r.setTop(0);
+	if(r.bottom()>this->geometry().bottom())
+		r.setBottom(this->geometry().bottom());
+
+	this->rubberBand->setGeometry(r);
 	this->selectionRect=this->rubberBand->geometry();
+
 	for(int j=0;j<mwc->cropMenu->actions().size();j++)
 		mwc->cropMenu->actions().at(j)->setEnabled(true);
 }

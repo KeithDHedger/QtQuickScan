@@ -28,8 +28,8 @@ class ScannerClass
 		~ScannerClass();
 
 		QString		deviceName;
-		QString		resolution;
-		QString		defaultResolution;
+		QString		resolution="75";
+		QString		defaultResolution="75";
 		QString		colourMode="Color";
 		double		paperWidth;
 		double		paperHeight;

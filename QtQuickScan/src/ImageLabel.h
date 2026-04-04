@@ -44,8 +44,6 @@ class ImageLabelClass : public QLabel
 
 	private:
 		QPoint		startPoint;
-		//int 			sx=-1;
-		//int 			sy=-1;
 		QPoint		sp;
 		QRect		hr;
 };
