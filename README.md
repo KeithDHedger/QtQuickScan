@@ -34,5 +34,7 @@ Progress bar.
 Error messages (GUI)  
 ~~About.~~  
 ~~Help.~~  
+Remove debug messages.
+Add Progress bar.
 
 Etc. Etc.  
