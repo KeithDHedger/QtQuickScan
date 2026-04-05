@@ -31,6 +31,8 @@ class ScannerClass
 		QString		resolution="75";
 		QString		defaultResolution="75";
 		QString		colourMode="Color";
+		QString		inEnglishMode="Colour";
+
 		double		paperWidth;
 		double		paperHeight;
 		SANE_Handle	hdl=NULL;

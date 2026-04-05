@@ -13,6 +13,7 @@ To compile use:
 make
 
 Optional:
+(Strongly recommended)
 strip --strip-unneeded QtQuickScan/app/qtquickscan
 sudo make install
 ```

@@ -68,6 +68,7 @@ void ScannerClass::getDefaultResolution(void)
 						resol=(int)(SANE_UNFIX(*(SANE_Fixed *)val)+0.5);
    					qDebug()<<"Default resolution"<<resol;
    					this->defaultResolution=QString("%1").arg(resol);
+   					this->resolution=QString("%1").arg(resol);
 					return;
    				}
 		}
@@ -193,6 +194,10 @@ void ScannerClass::setDevice(QString devname)
 {
 	SANE_Status	st;
 
+	mwc->label1->setPixmap(QPixmap());
+	mwc->label1->setText(QString("Querying '%1'  ...").arg(devname));
+	qApp->processEvents();
+
 	if(this->hdl!=NULL)
 		{
 //reset def reso
@@ -218,15 +223,13 @@ void ScannerClass::setDevice(QString devname)
 			this->getOption("br-y");
 			this->paperHeight=this->rangeDoubleTo;
 
-
 			system(qPrintable(QString("rm %1 %2").arg(previewPath).arg(scanPath)));
 			mwc->cropMenu->actions().at(CLEARSELITEM)->activate(QAction::Trigger);
-			mwc->label1->setPixmap(QPixmap());
+			mwc->label1->setText("");
 			mwc->resoMenu->actions().at(0)->setChecked(true);
-			//this->colourMode="Color";???
-			//mwc->colourMenu->actions().at(0)->setChecked(true);???
 			mwc->setSensitive();
 			mwc->setWindowTitle(QString("QtQuickScan - %1").arg(devname));
+			mwc->setInfoBar();
 			return;
 		}
 	else
@@ -252,7 +255,12 @@ void ScannerClass::scanImage(bool preview)
 	int							hite;
 	int							finalsize;
 
-	mwc->label1->setText("");
+	mwc->label1->setPixmap(QPixmap());
+	if(preview==true)
+		mwc->label1->setText("Acquiring Preview ...");
+	else
+		mwc->label1->setText("Preparing Scan ...");
+
 	qApp->processEvents();
 
 //timeval start, end;
@@ -321,7 +329,6 @@ void ScannerClass::scanImage(bool preview)
 		return;
 
 	hundred_percent=params.bytes_per_line*params.lines*((params.format==SANE_FRAME_RGB || params.format==SANE_FRAME_GRAY) ? 1:3);
-
 	fwrite(buf,1,len,out);
 	while (true)
 		{
@@ -329,11 +336,11 @@ void ScannerClass::scanImage(bool preview)
 			if(status==SANE_STATUS_EOF || len==0) break;
 			check(status,"sane_read");
 			fwrite(buf,1,len,out);
-			total_bytes+=(SANE_Word) len;
+			total_bytes+=(SANE_Word)len;
 			progr=((total_bytes*100.0)/(double)hundred_percent);
 			if(progr>100.0)
 				progr=100.0;
-			fprintf (stderr,"Progress: %3.1f%%\r",progr);
+			mwc->statusBar()->showMessage(QString("Progress: %1%").arg(progr,0,'f',2));
 			if(preview==true)
 				mwc->loadImage(previewPath);
 			else
@@ -344,6 +351,7 @@ void ScannerClass::scanImage(bool preview)
 	fclose(out);
 
 	printf("\nSaved output.pnm (%d x %d)\n",params.pixels_per_line,params.lines);
+	mwc->statusBar()->showMessage(QString("Progress: 100.00%"));
 
 	if(preview==false)
 		{

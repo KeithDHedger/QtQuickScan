@@ -143,6 +143,7 @@ void MainWindowClass::setFileMenu(void)
 						this->scanner.setOption("tl-y","0");
 						this->scanner.setOption("br-x",qPrintable(QString("%1").arg(this->scanner.paperWidth)));
 						this->scanner.setOption("br-y",qPrintable(QString("%1").arg(this->scanner.paperHeight)));
+						
 						this->scanner.scanImage(true);
 						break;
 				}
@@ -345,8 +346,8 @@ void MainWindowClass::setDeviceMenu(void)
 					this->deviceMenu->clear();
 					this->setDeviceMenu();
 					this->scanner.setDevice(this->scanner.deviceName);
-
 				}
+			this->setInfoBar();
 		});
 }
 
@@ -379,6 +380,8 @@ void MainWindowClass::setResoMenu(void)
 				this->scanner.resolution=this->scanner.defaultResolution;
 			else
 				this->scanner.resolution=action->data().toString();
+
+			this->setInfoBar();
 			qDebug()<<"Set resolution to"<<action->data().toString();
 		});
 }
@@ -411,6 +414,8 @@ void MainWindowClass::setColourMenu(void)
 		{
 			qDebug()<<"Set colour mode to"<<action->text();
 			this->scanner.colourMode=action->data().toString();
+			this->scanner.inEnglishMode=action->text();
+			this->setInfoBar();
 		});
 }
 
@@ -424,11 +429,15 @@ MainWindowClass::MainWindowClass()
 	r=settings.value("app/geometry",QVariant(r)).value<QRect>();
 	this->setGeometry(r);
 
-this->prefs.setPrefsName(PACKAGE_NAME);
-
+	//this->statusBar=new QStatusBar(this);
+//	this->setStatusBar(this->statusBar);
+//this->statusBar->showMessage("xxx",0);
+//this->statusBar->show();
+	this->prefs.setPrefsName(PACKAGE_NAME);
 
 	this->label1=new ImageLabelClass;
 	this->label1->setText("Loading Device Info ...");
+this->label1->setMinimumHeight(50);
 
 	layout->addWidget(this->label1);
 	layout->setAlignment(Qt::AlignCenter);
@@ -440,11 +449,13 @@ this->prefs.setPrefsName(PACKAGE_NAME);
 	this->show();
 	this->repaint();
 	widg->repaint();
-	qApp->processEvents();
-	qApp->processEvents();
+//	qApp->processEvents();
+//	qApp->processEvents();
 	qApp->processEvents();
 //<<<
 	this->setWindowTitle("QtQuickScan");
+//	this->statusBar=new QStatusBar(this);
+//this->setStatusBar(this->statusBar);
 
 	this->setFileMenu();
 	this->setDeviceMenu();
@@ -467,13 +478,19 @@ this->prefs.setPrefsName(PACKAGE_NAME);
 	this->prefs.setPrefsName(PACKAGE_NAME);
 
 	this->setMenuBar(&this->menuBar);
-	
+
 	this->utils.lastDir=this->prefs.getFilePref("app/dir");
 	this->utils.lastName=this->prefs.getFilePref("app/name");
 	this->utils.lastSFX=this->prefs.getFilePref("app/sfx");
 
 	if(QFileInfo::exists(this->utils.lastDir)==false)
 		this->utils.lastDir="/tmp";
+
+	this->statusBar()->setSizeGripEnabled(false);
+	this->statusText=new QLabel(this);
+ 	this->statusBar()->addWidget(statusText);
+	this->setInfoBar();
+	//this->statusBar()->show();
 }
 
 void MainWindowClass::closeEvent(QCloseEvent *event)
@@ -487,9 +504,7 @@ void MainWindowClass::loadImage(QString filename)
 		return;
 
 	QImage image(filename,"pnm");
-	//QImage image2=image.scaled(this->width()-50,this->height()-50,Qt::KeepAspectRatio);
 	this->image2=image.scaled(this->width()-50,this->height()-50,Qt::KeepAspectRatio);
-	///mwc->label1->setPixmap(QPixmap::fromImage(image2));
 	mwc->label1->setPixmap(QPixmap::fromImage(this->image2));
 }
 
@@ -514,3 +529,7 @@ void MainWindowClass::resizeEvent(QResizeEvent *event)
 		this->loadImage(previewPath);
 }
 
+void	 MainWindowClass::setInfoBar(void)
+{
+	this->statusText->setText(QString("Device:%1 Resolution:%2 Mode:%4 Output:%3").arg(this->scanner.deviceName).arg(this->scanner.resolution).arg(QString("%1/%2.%3").arg(this->utils.lastDir).arg(this->utils.lastName).arg(this->utils.lastSFX)).arg(this->scanner.inEnglishMode));
+}

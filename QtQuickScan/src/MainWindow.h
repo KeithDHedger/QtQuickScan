@@ -37,6 +37,7 @@ class MainWindowClass: public QMainWindow
 		QMenu				*colourMenu=NULL;
 		QMenu				*helpMenu=NULL;
 		QMenu				*cropMenu=NULL;
+		QImage				image2;
 
 		prefsWidgetsClass	prefs;
 		ImageLabelClass		*label1;
@@ -45,7 +46,8 @@ class MainWindowClass: public QMainWindow
 
 		void					loadImage(QString filename);
 		void					setSensitive(void);
-QImage image2;
+		void					setInfoBar(void);
+
 	private:
 		bool					gotScan=false;
 		void					setFileMenu(void);
@@ -54,6 +56,7 @@ QImage image2;
 		void					setColourMenu(void);
 		QMenu				*setHelpMenu(QMenuBar *menubar);
 		QMenu				*setCropMenu(QMenuBar *menubar);
+		QLabel				*statusText=NULL;
 
 	protected:
 	    void					closeEvent(QCloseEvent *event) override;
