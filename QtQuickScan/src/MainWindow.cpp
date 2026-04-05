@@ -382,7 +382,7 @@ void MainWindowClass::setResoMenu(void)
 				this->scanner.resolution=action->data().toString();
 
 			this->setInfoBar();
-			qDebug()<<"Set resolution to"<<action->data().toString();
+			//qDebug()<<"Set resolution to"<<action->data().toString();
 		});
 }
 
@@ -412,7 +412,7 @@ void MainWindowClass::setColourMenu(void)
 	this->colourMenu->addActions(actions->actions());
 	QObject::connect(actions,&QActionGroup::triggered,this,[this](QAction *action)
 		{
-			qDebug()<<"Set colour mode to"<<action->text();
+			//qDebug()<<"Set colour mode to"<<action->text();
 			this->scanner.colourMode=action->data().toString();
 			this->scanner.inEnglishMode=action->text();
 			this->setInfoBar();
@@ -486,11 +486,28 @@ this->label1->setMinimumHeight(50);
 	if(QFileInfo::exists(this->utils.lastDir)==false)
 		this->utils.lastDir="/tmp";
 
-	this->statusBar()->setSizeGripEnabled(false);
+QStatusBar *sb=this->statusBar();
+
+
+	//this->statusBar()->setSizeGripEnabled(false);
+	sb->setSizeGripEnabled(false);
+	//this->statusText=new QLabel(this);
 	this->statusText=new QLabel(this);
- 	this->statusBar()->addWidget(statusText);
+ 
+ 
+ 
+ 	//this->statusBar()->addWidget(statusText);
+ 	sb->addWidget(this->statusText);
+
+
+
+	QPushButton *yourButton = new QPushButton("Click Me");
+	this->statusText2=new QLabel(this);
+
+	//mwc->statusBar()->removeWidget(mwc->statusText);
+	//sb->addWidget(yourButton,1);
+
 	this->setInfoBar();
-	//this->statusBar()->show();
 }
 
 void MainWindowClass::closeEvent(QCloseEvent *event)

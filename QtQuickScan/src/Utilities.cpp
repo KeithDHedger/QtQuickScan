@@ -50,7 +50,7 @@ void UtilitiesClass::convertImage(QString inpath,QString type,QString dir,QStrin
 	if(type=="pnm")
 		{
 			system(qPrintable(QString("cp %1 %2").arg(inpath).arg(outPath)));
-			qDebug()<<"Saved"<<outPath;
+			//qDebug()<<"Saved"<<outPath;
 			return;
 		}
 
@@ -80,7 +80,7 @@ void UtilitiesClass::convertImage(QString inpath,QString type,QString dir,QStrin
 			return;
 		}
 
-	qDebug()<<"Saved"<<outPath;
+	//qDebug()<<"Saved"<<outPath;
 	return;
 }
 

@@ -31,11 +31,11 @@ More options.
 ~~Set menu items when changing device etc.~~
 Prefs  
 Save current prefs  
-Progress bar.  
+~~Progress bar.~~  
 Error messages (GUI)  
 ~~About.~~  
 ~~Help.~~  
-Remove debug messages.
-Add Progress bar.
+~~Remove debug messages~~.
+~~Add Progress bar.~~
 
 Etc. Etc.  

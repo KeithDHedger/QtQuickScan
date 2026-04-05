@@ -66,7 +66,7 @@ void ScannerClass::getDefaultResolution(void)
 						resol=*(SANE_Int *)val;
 					else
 						resol=(int)(SANE_UNFIX(*(SANE_Fixed *)val)+0.5);
-   					qDebug()<<"Default resolution"<<resol;
+   					//qDebug()<<"Default resolution"<<resol;
    					this->defaultResolution=QString("%1").arg(resol);
    					this->resolution=QString("%1").arg(resol);
 					return;
@@ -103,7 +103,7 @@ void ScannerClass::getOption(const char *optname)
 								break;
 							case SANE_TYPE_INT:
 								resol=*(SANE_Int *)val;
-								qDebug()<<"SANE_TYPE_INT constraint_type"<<opt->constraint_type;
+								//qDebug()<<"SANE_TYPE_INT constraint_type"<<opt->constraint_type;
 								if(opt->constraint_type)
 									{
 										this->rangeIntFrom=SANE_UNFIX(opt->constraint.range->min);
@@ -111,7 +111,7 @@ void ScannerClass::getOption(const char *optname)
 									}
 								else
 									this->fixedVal=resol;
-								qDebug()<<"SANE_TYPE_INT getOption"<<optname<<resol;
+								//qDebug()<<"SANE_TYPE_INT getOption"<<optname<<resol;
 								
 								break;
 							case SANE_TYPE_FIXED:
@@ -129,8 +129,8 @@ void ScannerClass::getOption(const char *optname)
 
 								break;
 							case SANE_TYPE_STRING:
-								qDebug()<<"SANE_TYPE_STRING constraint_type"<<opt->constraint_type;
-								qDebug()<<"SANE_TYPE_STRING"<<optname<<QString("%1").arg((char*)val);
+								//qDebug()<<"SANE_TYPE_STRING constraint_type"<<opt->constraint_type;
+								//qDebug()<<"SANE_TYPE_STRING"<<optname<<QString("%1").arg((char*)val);
 								break;
 							case SANE_TYPE_BUTTON:
 							case SANE_TYPE_GROUP:
@@ -160,25 +160,25 @@ bool ScannerClass::setOption(const char *optname,const void *value)
 							//	break;
 							case SANE_TYPE_INT://1
 								{
-									fprintf(stderr,"SANE_TYPE_INT>>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
+									//fprintf(stderr,"SANE_TYPE_INT>>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
 									SANE_Int res=atoi((const char*)value);
 									s=sane_control_option(this->hdl,i,SANE_ACTION_SET_VALUE,&res,0);
 								}
 								break;
 							case SANE_TYPE_FIXED://2
 								{
-									fprintf(stderr,"SANE_TYPE_FIXED>>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
+									//fprintf(stderr,"SANE_TYPE_FIXED>>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
 									SANE_Word res=SANE_FIX(atoi((const char*)value));
-									fprintf(stderr,"SANE_TYPE_FIXED val=%g\n",res);
+									//fprintf(stderr,"SANE_TYPE_FIXED val=%g\n",res);
 									s=sane_control_option(this->hdl,i,SANE_ACTION_SET_VALUE,&res,0);
 								}
 								break;
 							case SANE_TYPE_STRING://3
-								fprintf(stderr,"SANE_TYPE_STRING>>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
+								//fprintf(stderr,"SANE_TYPE_STRING>>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
 								s=sane_control_option(this->hdl,i,SANE_ACTION_SET_VALUE,(void*)value,0);
  								break;
   							default:
-  								fprintf(stderr,"default>>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
+  								//fprintf(stderr,"default>>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
   								break;
 						}
 
@@ -186,7 +186,7 @@ bool ScannerClass::setOption(const char *optname,const void *value)
 					return true;
 				}
 		}
-	fprintf(stderr,"UNKNOWN>>>>>optname=%s val=%s\n",optname,(const char*)value);
+	//fprintf(stderr,"UNKNOWN>>>>>optname=%s val=%s\n",optname,(const char*)value);
 	return false;
 }
 
@@ -210,7 +210,7 @@ void ScannerClass::setDevice(QString devname)
 	st=sane_open(qPrintable(this->deviceName),&this->hdl);
 	if(st==SANE_STATUS_GOOD)
 		{
-			qDebug()<<"Opened"<<devname;
+			//qDebug()<<"Opened"<<devname;
 			this->resolution="";
 			this->defaultResolution="";
 			this->getDefaultResolution();
@@ -223,7 +223,7 @@ void ScannerClass::setDevice(QString devname)
 			this->getOption("br-y");
 			this->paperHeight=this->rangeDoubleTo;
 
-			system(qPrintable(QString("rm %1 %2").arg(previewPath).arg(scanPath)));
+			system(qPrintable(QString("rm %1 %2 2>/dev/null").arg(previewPath).arg(scanPath)));
 			mwc->cropMenu->actions().at(CLEARSELITEM)->activate(QAction::Trigger);
 			mwc->label1->setText("");
 			mwc->resoMenu->actions().at(0)->setChecked(true);
@@ -238,6 +238,7 @@ void ScannerClass::setDevice(QString devname)
 
 void ScannerClass::scanImage(bool preview)
 {
+	QPushButton					*cancelbtn=NULL;
 	SANE_Status					status;
 	const SANE_Option_Descriptor	*desc;
 	unsigned char				buf[BUFFERSIZE];
@@ -330,7 +331,20 @@ void ScannerClass::scanImage(bool preview)
 
 	hundred_percent=params.bytes_per_line*params.lines*((params.format==SANE_FRAME_RGB || params.format==SANE_FRAME_GRAY) ? 1:3);
 	fwrite(buf,1,len,out);
-	while (true)
+
+	if(preview==false)
+		{
+			cancelbtn=new QPushButton("Cancel Scan");
+			cancelbtn->setMaximumHeight(mwc->statusBar()->height()-4);
+			mwc->statusBar()->addPermanentWidget(cancelbtn,0);
+			QObject::connect(cancelbtn,&QPushButton::clicked,[this,out]()
+				{
+					sane_cancel(this->hdl);
+					return;
+				});
+		}
+
+	while(true)
 		{
 			status=sane_read(this->hdl,buf,BUFFERSIZE,&len);
 			if(status==SANE_STATUS_EOF || len==0) break;
@@ -350,7 +364,7 @@ void ScannerClass::scanImage(bool preview)
 
 	fclose(out);
 
-	printf("\nSaved output.pnm (%d x %d)\n",params.pixels_per_line,params.lines);
+	//printf("\nSaved output.pnm (%d x %d)\n",params.pixels_per_line,params.lines);
 	mwc->statusBar()->showMessage(QString("Progress: 100.00%"));
 
 	if(preview==false)
@@ -362,6 +376,15 @@ void ScannerClass::scanImage(bool preview)
 		{
 			mwc->loadImage(previewPath);
 		}
+
+	if(cancelbtn!=NULL)
+		{
+			mwc->statusBar()->removeWidget(cancelbtn);
+			delete cancelbtn;
+			mwc->statusBar()->showMessage("");
+		}
+
+	mwc->setInfoBar();
 //fprintf(stderr,"\n");
 // gettimeofday(&end, NULL);
 //timeval result;

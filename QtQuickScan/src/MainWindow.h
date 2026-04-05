@@ -38,6 +38,8 @@ class MainWindowClass: public QMainWindow
 		QMenu				*helpMenu=NULL;
 		QMenu				*cropMenu=NULL;
 		QImage				image2;
+		QLabel				*statusText=NULL;
+		QLabel				*statusText2=NULL;
 
 		prefsWidgetsClass	prefs;
 		ImageLabelClass		*label1;
@@ -56,7 +58,6 @@ class MainWindowClass: public QMainWindow
 		void					setColourMenu(void);
 		QMenu				*setHelpMenu(QMenuBar *menubar);
 		QMenu				*setCropMenu(QMenuBar *menubar);
-		QLabel				*statusText=NULL;
 
 	protected:
 	    void					closeEvent(QCloseEvent *event) override;
