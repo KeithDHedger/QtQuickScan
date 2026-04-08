@@ -43,12 +43,16 @@ class ScannerClass
 
 		bool			setOption(const char *optname,const void *value);
 		void 		getOption(const char *optname);
-	private:
-		double		rangeDoubleFrom;
+		void			resetSize(void);
+		void			setMargins(void);
+
 		double		rangeDoubleTo;
+		double		rangeDoubleFrom;
+		int			fixedVal;
+		double		doubleVal;
+	private:
 		int			rangeIntFrom;
 		int			rangeIntTo;
-		int			fixedVal;
 		FILE			*ofp=stdout;
 
 		void			check(SANE_Status status,const char *msg);

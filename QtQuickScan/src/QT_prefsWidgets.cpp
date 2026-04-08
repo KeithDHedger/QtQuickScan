@@ -25,7 +25,7 @@ void prefsWidgetsClass::setPrefsName(QString name)
 void prefsWidgetsClass::startWindow(QString wname)
 {
 	this->window=new QDialog;
-	this->window->setWindowTitle(wname);
+	this->window->setWindowTitle(QString("%1 - %2").arg(wname).arg(this->sectionName));
 	this->windowVLayout=new QVBoxLayout(this->window);
 	this->window->setLayout(this->windowVLayout);
 }
@@ -175,6 +175,7 @@ QString prefsWidgetsClass::normalizeLabel(QString label)
 
 	retlabel=retlabel.remove(' ');
 	retlabel=retlabel.toLower();
+	retlabel=QString("%1/%2").arg(this->sectionName).arg(retlabel);
 	return(retlabel);
 }
 

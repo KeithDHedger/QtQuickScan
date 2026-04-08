@@ -34,8 +34,6 @@ MainWindowClass::~MainWindowClass()
 	settings.setValue("app/name",this->utils.lastName);
 	settings.setValue("app/dir",this->utils.lastDir);
 	settings.setValue("app/sfx",this->utils.lastSFX);
-
-	//delete this->prefs;
 }
 
 void MainWindowClass::setFileMenu(void)
@@ -56,14 +54,17 @@ void MainWindowClass::setFileMenu(void)
 	act->setSeparator(true);
 
 	act=new QAction(QIcon::fromTheme("document-open"),"Open In GIMP",actions);
+	act->setShortcut(QKeySequence::Open);
 	act->setData(OPENINGIMPITEM);
+
 	act=new QAction(QIcon::fromTheme("document-print"),"Print",actions);
+	act->setShortcut(QKeySequence::Print);
 	act->setData(PRINTITEM);
 
 	act=new QAction(actions);
 	act->setSeparator(true);
 
-	act=new QAction(QIcon::fromTheme("document-save"),"Save",actions);
+	act=new QAction(QIcon::fromTheme("document-save"),"Save As ...",actions);
 	act->setShortcut(QKeySequence::SaveAs);
 	act->setData(SAVEITEM);
 
@@ -79,6 +80,13 @@ void MainWindowClass::setFileMenu(void)
 	act=new QAction(actions);
 	act->setSeparator(true);
 
+	act=new QAction(QIcon::fromTheme("preferences-other"),"Preferences",actions);
+	act->setShortcut(QKeySequence::Quit);
+	act->setData(PREFSITEM);
+
+	act=new QAction(actions);
+	act->setSeparator(true);
+
 	act=new QAction(QIcon::fromTheme("application-exit"),"Quit",actions);
 	act->setShortcut(QKeySequence::Quit);
 	act->setData(QUITITEM);
@@ -88,6 +96,18 @@ void MainWindowClass::setFileMenu(void)
 		{
 			switch(action->data().toInt())
 				{
+					case PREFSITEM:
+						{
+							this->prefs.sectionName="Margins";
+							this->prefs.startWindow(PACKAGE_NAME);
+							this->prefs.addWidgetToWindow(this->prefs.getPrefsSpinWidget("Top Margin",0,500,0));
+							this->prefs.addWidgetToWindow(this->prefs.getPrefsSpinWidget("Right Margin",0,500,0));
+							this->prefs.addWidgetToWindow(this->prefs.getPrefsSpinWidget("Bottom Margin",0,500,0));
+							this->prefs.addWidgetToWindow(this->prefs.getPrefsSpinWidget("Left Margin",0,500,0));
+							this->prefs.finishWindow();
+						}
+						break;
+
 					case PRINTITEM:
 						{
 							QPrinter	printer(QPrinter::ScreenResolution);
@@ -103,10 +123,8 @@ void MainWindowClass::setFileMenu(void)
 							if(dialog.exec()!=QDialog::Accepted)
 								return;
 
-							QImage		image(scanPath);
 							QPainter		painter(&printer);
-
-							painter.drawImage(0,0,image);
+							painter.drawImage(0,0,this->fullImage);
 							painter.end();
 						}
 						break;
@@ -132,19 +150,41 @@ void MainWindowClass::setFileMenu(void)
 						qApp->exit();
 						break;
 					case SCANITEM:
-						this->scanner.setOption("tl-x","0");
-						this->scanner.setOption("tl-y","0");
-						this->scanner.setOption("br-x",qPrintable(QString("%1").arg(this->scanner.paperWidth)));
-						this->scanner.setOption("br-y",qPrintable(QString("%1").arg(this->scanner.paperHeight)));
-						this->scanner.scanImage(false);
+						{
+							double tlx=0,tly=0,brx=this->scanner.paperWidth,bry=this->scanner.paperHeight;
+
+							this->prefs.sectionName="Margins";
+							tlx+=this->prefs.getSpinPref("leftmargin");
+							tly+=this->prefs.getSpinPref("topmargin");
+							brx-=this->prefs.getSpinPref("rightmargin");
+							bry-=this->prefs.getSpinPref("bottommargin");
+
+							this->scanner.resetSize();
+							this->scanner.setOption("tl-x",qPrintable(QString("%1").arg(tlx)));
+							this->scanner.setOption("tl-y",qPrintable(QString("%1").arg(tly)));
+							this->scanner.setOption("br-x",qPrintable(QString("%1").arg(brx)));
+							this->scanner.setOption("br-y",qPrintable(QString("%1").arg(bry)));
+
+							this->scanner.scanImage(false);
+						}
 						break;
 					case PREVIEWITEM:
-						this->scanner.setOption("tl-x","0");
-						this->scanner.setOption("tl-y","0");
-						this->scanner.setOption("br-x",qPrintable(QString("%1").arg(this->scanner.paperWidth)));
-						this->scanner.setOption("br-y",qPrintable(QString("%1").arg(this->scanner.paperHeight)));
-						
-						this->scanner.scanImage(true);
+						{
+							double tlx=0,tly=0,brx=this->scanner.paperWidth,bry=this->scanner.paperHeight;
+
+							this->prefs.sectionName="Margins";
+							tlx+=this->prefs.getSpinPref("leftmargin");
+							tly+=this->prefs.getSpinPref("topmargin");
+							brx-=this->prefs.getSpinPref("rightmargin");
+							bry-=this->prefs.getSpinPref("bottommargin");
+
+							this->scanner.resetSize();
+							this->scanner.setOption("tl-x",qPrintable(QString("%1").arg(tlx)));
+							this->scanner.setOption("tl-y",qPrintable(QString("%1").arg(tly)));
+							this->scanner.setOption("br-x",qPrintable(QString("%1").arg(brx)));
+							this->scanner.setOption("br-y",qPrintable(QString("%1").arg(bry)));
+							this->scanner.scanImage(true);
+						}
 						break;
 				}
 		});
@@ -197,12 +237,34 @@ QMenu* MainWindowClass::setCropMenu(QMenuBar *menubar)
 	QAction			*act;
 	QMenu			*menu;
 
-	menu=menubar->addMenu("&Selection");
+	menu=menubar->addMenu("&Crop");
 	actions=new QActionGroup(menu);
 	actions->setExclusive(true);
 
-	act=new QAction("Crop",actions);
+	act=new QAction("Crop To Selection",actions);
 	act->setData(CROPTORECTITEM);
+	act->setEnabled(false);
+
+	act=new QAction(actions);
+	act->setSeparator(true);
+
+	act=new QAction("Open Cropped In GIMP",actions);
+	act->setData(OPENCROPPEDINGIMP);
+	act->setEnabled(false);
+
+	act=new QAction("Save Cropped As JPG",actions);
+	act->setData(SAVECROPPEDASJPG);
+	act->setEnabled(false);
+
+	act=new QAction("Save Cropped As PNG",actions);
+	act->setData(SAVECROPPEDASPNG);
+	act->setEnabled(false);
+
+	act=new QAction(actions);
+	act->setSeparator(true);
+
+	act=new QAction("Restore Scan",actions);
+	act->setData(RESTORESCAN);
 	act->setEnabled(false);
 
 	act=new QAction("Hide Selection",actions);
@@ -222,42 +284,41 @@ QMenu* MainWindowClass::setCropMenu(QMenuBar *menubar)
 		{
 			switch(action->data().toInt())
 				{
+					case OPENCROPPEDINGIMP:
+						QProcess::startDetached("gimp",QStringList()<<qPrintable(QString("%1/cropped.jpg").arg(tmpFolderPath)));
+						break;
+					case SAVECROPPEDASJPG:
+						this->utils.convertImage(QString("%1/cropped.jpg").arg(tmpFolderPath),"jpg");
+						break;
+					case SAVECROPPEDASPNG:
+						this->utils.convertImage(QString("%1/cropped.jpg").arg(tmpFolderPath),"png");
+						break;
+					case RESTORESCAN:
+						this->loadImage(scanPath);
+						this->label1->rubberBand->show();
+						break;
+
 					case CROPTORECTITEM:
 						{
-							double resd;
-							double labeldim;
-							double paperdim;
-							double mult;
-
-							this->scanner.setOption("tl-x","0");
-							this->scanner.setOption("tl-y","0");
-							this->scanner.setOption("br-x",qPrintable(QString("%1").arg(this->scanner.paperWidth)));
-							this->scanner.setOption("br-y",qPrintable(QString("%1").arg(this->scanner.paperHeight)));
-
-							if(this->label1->selectionRect.width()>0)
+							QImage	i(scanPath);
+							int		left=0;
+							int		labelwid=this->label1->width();
+							int		labelhite=this->label1->height();
+							QRect	r=this->label1->selectionRect.normalized();
+							double	xmult=((double)(i.width())+0.5)/((double)(labelwid)+0.5);
+							double	ymult=((double)(i.height())+0.5)/((double)(labelhite)+0.5);
+							r.adjust(1,1,2,2);
+							this->fullImage=i.copy(r.left()*xmult,(r.top())*xmult,(r.width())*ymult,(r.height())*ymult);;
+							this->image2=this->fullImage.scaled(this->width()-50,this->height()-50,Qt::KeepAspectRatio);
+							this->label1->setPixmap(QPixmap::fromImage(this->image2));
+							QImageWriter writer(QString("%1/cropped.jpg").arg(tmpFolderPath),"jpg");
+							writer.setQuality(100);
+							if (!writer.write(this->fullImage))
 								{
-									labeldim=(double)this->label1->geometry().height();
-									paperdim=(double)this->scanner.paperHeight;
-									mult=(double)this->label1->selectionRect.height()+this->label1->selectionRect.top();
-									resd=paperdim/labeldim*mult;
-									this->scanner.setOption("br-y",qPrintable(QString("%1").arg(resd)));
-
-									mult=(double)this->label1->selectionRect.top();
-									resd=paperdim/labeldim*mult;
-									this->scanner.setOption("tl-y",qPrintable(QString("%1").arg(resd)));
-
-									labeldim=(double)this->label1->geometry().width();
-									paperdim=(double)this->scanner.paperWidth;
-									mult=(double)this->label1->selectionRect.width()+this->label1->selectionRect.left();
-									resd=paperdim/labeldim*mult;
-									this->scanner.setOption("br-x",qPrintable(QString("%1").arg(resd)));
-
-									mult=(double)this->label1->selectionRect.left();
-									resd=paperdim/labeldim*mult;
-									this->scanner.setOption("tl-x",qPrintable(QString("%1").arg(resd)));
-
-									this->scanner.scanImage(false);
+									qDebug()<<"Write failed:"<< writer.errorString();
+									return;
 								}
+							this->label1->rubberBand->hide();
 						}
 						break;
 					case HIDESELITEM:
@@ -273,6 +334,8 @@ QMenu* MainWindowClass::setCropMenu(QMenuBar *menubar)
 						this->label1->selectionRect=QRect(0,0,0,0);
 						for(int j=0;j<this->cropMenu->actions().size();j++)
 							this->cropMenu->actions().at(j)->setEnabled(false);
+						this->loadImage(scanPath);
+						system(qPrintable(QString("rm %1/cropped.jpg").arg(tmpFolderPath)));
 						break;
 				}
 		});
@@ -429,15 +492,11 @@ MainWindowClass::MainWindowClass()
 	r=settings.value("app/geometry",QVariant(r)).value<QRect>();
 	this->setGeometry(r);
 
-	//this->statusBar=new QStatusBar(this);
-//	this->setStatusBar(this->statusBar);
-//this->statusBar->showMessage("xxx",0);
-//this->statusBar->show();
 	this->prefs.setPrefsName(PACKAGE_NAME);
 
 	this->label1=new ImageLabelClass;
 	this->label1->setText("Loading Device Info ...");
-this->label1->setMinimumHeight(50);
+	this->label1->setMinimumHeight(50);
 
 	layout->addWidget(this->label1);
 	layout->setAlignment(Qt::AlignCenter);
@@ -449,13 +508,9 @@ this->label1->setMinimumHeight(50);
 	this->show();
 	this->repaint();
 	widg->repaint();
-//	qApp->processEvents();
-//	qApp->processEvents();
 	qApp->processEvents();
 //<<<
 	this->setWindowTitle("QtQuickScan");
-//	this->statusBar=new QStatusBar(this);
-//this->setStatusBar(this->statusBar);
 
 	this->setFileMenu();
 	this->setDeviceMenu();
@@ -520,8 +575,10 @@ void MainWindowClass::loadImage(QString filename)
 	if(QFileInfo::exists(filename)==false)
 		return;
 
-	QImage image(filename,"pnm");
-	this->image2=image.scaled(this->width()-50,this->height()-50,Qt::KeepAspectRatio);
+	//QImage image(filename,"pnm");
+	this->fullImage.load(filename,"pnm");
+	//this->image2=image.scaled(this->width()-50,this->height()-50,Qt::KeepAspectRatio);
+	this->image2=this->fullImage.scaled(this->width()-50,this->height()-50,Qt::KeepAspectRatio);
 	mwc->label1->setPixmap(QPixmap::fromImage(this->image2));
 }
 

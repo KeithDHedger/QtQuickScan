@@ -58,6 +58,7 @@ class MainWindowClass: public QMainWindow
 		void					setColourMenu(void);
 		QMenu				*setHelpMenu(QMenuBar *menubar);
 		QMenu				*setCropMenu(QMenuBar *menubar);
+		QImage				fullImage;
 
 	protected:
 	    void					closeEvent(QCloseEvent *event) override;

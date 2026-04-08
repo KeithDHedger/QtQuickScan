@@ -66,7 +66,6 @@ void ScannerClass::getDefaultResolution(void)
 						resol=*(SANE_Int *)val;
 					else
 						resol=(int)(SANE_UNFIX(*(SANE_Fixed *)val)+0.5);
-   					//qDebug()<<"Default resolution"<<resol;
    					this->defaultResolution=QString("%1").arg(resol);
    					this->resolution=QString("%1").arg(resol);
 					return;
@@ -89,21 +88,17 @@ void ScannerClass::getOption(const char *optname)
 				return;
 			if(opt->name && strcmp(opt->name,optname)==0)
 				{
-//printf("Found option '%s' (index %d)\n",opt->name,i);
-//printf("Type: %d,Unit: %d,Cap: 0x%x\n",opt->type,opt->unit,opt->cap);
 					val=alloca(opt->size);
 					if(!val)
 						return;
 					sane_control_option(this->hdl,i,SANE_ACTION_GET_VALUE,val,0);
 					switch(opt->type)
 						{
-							//if(desc->constraint_type==SANE_CONSTRAINT_RANGE)
 							case SANE_TYPE_BOOL:
 								qDebug()<<"bool TODO";
 								break;
 							case SANE_TYPE_INT:
 								resol=*(SANE_Int *)val;
-								//qDebug()<<"SANE_TYPE_INT constraint_type"<<opt->constraint_type;
 								if(opt->constraint_type)
 									{
 										this->rangeIntFrom=SANE_UNFIX(opt->constraint.range->min);
@@ -111,16 +106,14 @@ void ScannerClass::getOption(const char *optname)
 									}
 								else
 									this->fixedVal=resol;
-								//qDebug()<<"SANE_TYPE_INT getOption"<<optname<<resol;
 								
 								break;
 							case SANE_TYPE_FIXED:
 								resol=(int)(SANE_UNFIX(*(SANE_Fixed *)val)+0.5);
-								////qDebug()<<"SANE_TYPE_FIXED constraint_type"<<opt->constraint_type;
-								//qDebug()<<"SANE_TYPE_FIXED getOption"<<optname<<resol;
-								//qDebug()<<"SANE_TYPE_FIXED"<<SANE_UNFIX (opt->constraint.range->min)<<SANE_UNFIX (opt->constraint.range->max);
 								if(opt->constraint_type)
 									{
+										this->fixedVal=resol;
+										this->doubleVal=SANE_UNFIX(*(SANE_Fixed *)val);
 										this->rangeDoubleFrom=SANE_UNFIX(opt->constraint.range->min);
 										this->rangeDoubleTo=SANE_UNFIX(opt->constraint.range->max);
 									}
@@ -129,8 +122,6 @@ void ScannerClass::getOption(const char *optname)
 
 								break;
 							case SANE_TYPE_STRING:
-								//qDebug()<<"SANE_TYPE_STRING constraint_type"<<opt->constraint_type;
-								//qDebug()<<"SANE_TYPE_STRING"<<optname<<QString("%1").arg((char*)val);
 								break;
 							case SANE_TYPE_BUTTON:
 							case SANE_TYPE_GROUP:
@@ -150,7 +141,23 @@ bool ScannerClass::setOption(const char *optname,const void *value)
 			const SANE_Option_Descriptor *opt=sane_get_option_descriptor(this->hdl,i);
 			if(!opt) break;
 			if(opt->name && strcmp(opt->name,optname)==0)
-				{
+				{ 
+				 SANE_Int info=0;
+				// void *xx=(void*)value;
+
+//
+//opt=sane_get_option_descriptor (this->hdl,i);
+//  if(opt && (!SANE_OPTION_IS_ACTIVE (opt->cap)))
+//    {
+//     // if(verbose > 0)
+//	fprintf (stderr,"%s: ignored request to set inactive option %s\n","vvv",opt->name);
+//      return(false);
+//    }
+//
+//
+// s=sane_control_option (this->hdl,i,SANE_ACTION_SET_VALUE,(void*)value,&info);
+// return(true);
+				
 					const SANE_Option_Descriptor *desc=sane_get_option_descriptor(this->hdl,i);
 					//fprintf(stderr,">>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
 					switch(desc->type)
@@ -167,10 +174,30 @@ bool ScannerClass::setOption(const char *optname,const void *value)
 								break;
 							case SANE_TYPE_FIXED://2
 								{
+								
+									//double dub=std::stod((const char*)value);
+									//qDebug()<<"dub val="<<dub;
+								
+//								s = sane_control_option(this->hdl, i, SANE_ACTION_SET_AUTO,(void*)value, NULL);
+//    
+//    if (s == SANE_STATUS_GOOD)
+//    {
+//        printf("Successfully set option %s to %s\n", optname, (const char*)value);
+//        return(true);
+//    }
+								
+								
+								
 									//fprintf(stderr,"SANE_TYPE_FIXED>>>>>desc->type=%i desc=%s\n",desc->type,desc->desc);
+									//fprintf(stderr,"value=%s\n",(const char*)value);
 									SANE_Word res=SANE_FIX(atoi((const char*)value));
 									//fprintf(stderr,"SANE_TYPE_FIXED val=%g\n",res);
+									//res=50.2;
+									//qDebug()<<"res="<<res<<(const char*)value;
+									//qDebug()<<"SANE_TYPE_FIXED"<<optname<<dub;
+									//s=sane_control_option(this->hdl,i,SANE_ACTION_SET_VALUE,(void*)&value,0);
 									s=sane_control_option(this->hdl,i,SANE_ACTION_SET_VALUE,&res,0);
+									//s=sane_control_option(this->hdl,i,SANE_ACTION_SET_VALUE,&value,0);
 								}
 								break;
 							case SANE_TYPE_STRING://3
@@ -393,4 +420,29 @@ void ScannerClass::scanImage(bool preview)
 //qDebug()<<"Elapsed time: " << elapsedTime ;
 }
 
+void ScannerClass::resetSize(void)
+{
+//qDebug()<<"resetSize"<<this->paperWidth<<this->paperHeight;
+//return;
+	this->setOption("tl-x","0");
+	this->setOption("tl-y","0");
+	this->setOption("br-x",qPrintable(QString("%1").arg(this->paperWidth)));
+	this->setOption("br-y",qPrintable(QString("%1").arg(this->paperHeight)));
+}
+
+void ScannerClass::setMargins(void)
+{
+	double tlx=0,tly=0,brx=this->paperWidth,bry=this->paperHeight;
+
+	mwc->prefs.sectionName="Margins";
+	tlx+=mwc->prefs.getSpinPref("leftmargin");
+	tly+=mwc->prefs.getSpinPref("topmargin");
+	brx-=mwc->prefs.getSpinPref("rightmargin");
+	bry-=mwc->prefs.getSpinPref("bottommargin");
+
+	this->setOption("tl-x",qPrintable(QString("%1").arg(tlx)));
+	this->setOption("tl-y",qPrintable(QString("%1").arg(tly)));
+	this->setOption("br-x",qPrintable(QString("%1").arg(brx)));
+	this->setOption("br-y",qPrintable(QString("%1").arg(bry)));
+}
 

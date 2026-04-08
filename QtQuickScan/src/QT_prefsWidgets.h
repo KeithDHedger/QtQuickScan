@@ -20,6 +20,7 @@ class	prefsWidgetsClass
 
 		QDialog					*window=NULL;
 		bool						getAsFolder=false;
+		QString					sectionName="";
 
 		void						setPrefsName(QString name);
 		void						startWindow(QString wname);
