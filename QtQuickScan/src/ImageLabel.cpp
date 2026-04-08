@@ -1,6 +1,6 @@
 /*
  *
- * ©K. D. Hedger. Tue 31 Mar 12:21:54 BST 2026 keithdhedger@gmail.com
+ * ©K. D. Hedger. Wed  8 Apr 16:10:27 BST 2026 keithdhedger@gmail.com
 
  * This file (ImageLabel.cpp) is part of QtQuickScan.
 
@@ -140,16 +140,6 @@ void ImageLabelClass::mouseMoveEvent(QMouseEvent *event)
 
 	if(this->expand==true && this->resize==true)
 		{
-//			if(pt.x()<0)
-//				pt.setX(0);
-//			if(pt.x()>this->geometry().width())
-//				pt.setX(this->geometry().width());
-//
-//			if(pt.y()<0)
-//				pt.setY(0);
-//			if(pt.y()>this->geometry().height())
-//				pt.setY(this->geometry().height());
-
 			switch(this->doWhat)
 				{
 					case MOVE:

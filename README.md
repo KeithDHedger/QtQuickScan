@@ -29,8 +29,8 @@ More options.
 ~~Output filename.~~  
 ~~Image conversions.~~  
 ~~Set menu items when changing device etc.~~
-Prefs  
-Save current prefs  
+~~Prefs~~  
+~~Save current prefs~~  
 ~~Progress bar.~~  
 Error messages (GUI)  
 ~~About.~~  

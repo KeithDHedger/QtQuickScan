@@ -1,6 +1,6 @@
 /*
  *
- * ©K. D. Hedger. Sat 28 Mar 12:57:12 GMT 2026 keithdhedger@gmail.com
+ * ©K. D. Hedger. Wed  8 Apr 16:13:05 BST 2026 keithdhedger@gmail.com
 
  * This file (Utilities.cpp) is part of QtQuickScan.
 
@@ -50,7 +50,6 @@ void UtilitiesClass::convertImage(QString inpath,QString type,QString dir,QStrin
 	if(type=="pnm")
 		{
 			system(qPrintable(QString("cp %1 %2").arg(inpath).arg(outPath)));
-			//qDebug()<<"Saved"<<outPath;
 			return;
 		}
 
@@ -61,7 +60,6 @@ void UtilitiesClass::convertImage(QString inpath,QString type,QString dir,QStrin
 			return;
 		}
 
-	// Optionally force a format or scale: reader.setScaledSize({800,600});
 	QImage image=reader.read();
 	if (image.isNull())
 		{
@@ -70,18 +68,12 @@ void UtilitiesClass::convertImage(QString inpath,QString type,QString dir,QStrin
 		}
 
 	QImageWriter writer(outPath,outsfx.toUtf8());
-	// Set quality 0-100 (only used by some formats like JPEG, WebP)
 	writer.setQuality(100);
-	// Optionally set compression (PNG): writer.setCompression(9);
-
 	if (!writer.write(image))
 		{
 			qCritical()<<"Write failed:"<< writer.errorString();
 			return;
 		}
-
-	//qDebug()<<"Saved"<<outPath;
-	return;
 }
 
 void UtilitiesClass::showHTML(void)

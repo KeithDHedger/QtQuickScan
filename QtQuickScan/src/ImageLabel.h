@@ -1,6 +1,6 @@
 /*
  *
- * ©K. D. Hedger. Tue 31 Mar 12:21:54 BST 2026 keithdhedger@gmail.com
+ * ©K. D. Hedger. Wed  8 Apr 16:10:50 BST 2026 keithdhedger@gmail.com
 
  * This file (ImageLabel.h) is part of QtQuickScan.
 

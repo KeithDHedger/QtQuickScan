@@ -1,6 +1,6 @@
 /*
  *
- * ©K. D. Hedger. Sat 28 Mar 12:57:12 GMT 2026 keithdhedger@gmail.com
+ * ©K. D. Hedger. Wed  8 Apr 16:13:58 BST 2026 keithdhedger@gmail.com
 
  * This file (Utilities.h) is part of QtQuickScan.
 
