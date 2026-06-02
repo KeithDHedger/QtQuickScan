@@ -35,6 +35,7 @@ class ImageLabelClass : public QLabel
 		bool			resize=false;
 		bool			expand=false;
 		int 			doWhat=-1;
+		bool			bandShowing=false;
 
 	protected:
 		void			mousePressEvent(QMouseEvent *event) override;

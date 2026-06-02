@@ -215,5 +215,16 @@ void ImageLabelClass::mouseReleaseEvent(QMouseEvent *event)
 	this->selectionRect=this->rubberBand->geometry();
 
 	for(int j=0;j<mwc->cropMenu->actions().size();j++)
-		mwc->cropMenu->actions().at(j)->setEnabled(true);
+		{
+			if(j>0 && j<CDIV2)
+				{
+					mwc->cropMenu->actions().at(j)->setEnabled(false);
+					continue;
+				}
+			mwc->cropMenu->actions().at(j)->setEnabled(true);
+		}
+	mwc->cropMenu->actions().at(TOGGLESELITEM)->setText("Hide Selection");
+	mwc->toggleBandMenuItem->setIcon(QIcon::fromTheme("list-remove"));
+
+	this->bandShowing=true;
 }

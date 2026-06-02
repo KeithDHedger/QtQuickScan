@@ -283,6 +283,8 @@ void ScannerClass::scanImage(bool preview)
 	int							hite;
 	int							finalsize;
 
+	mwc->menuBar.setEnabled(false);
+
 	mwc->label1->setPixmap(QPixmap());
 	if(preview==true)
 		mwc->label1->setText("Acquiring Preview ...");
@@ -351,7 +353,10 @@ void ScannerClass::scanImage(bool preview)
 
 	sane_read(this->hdl,buf,BUFFERSIZE,&len);
 	if(len==0)
+	{
+		mwc->setSensitive();
 		return;
+	}
 
 	hundred_percent=params.bytes_per_line*params.lines*((params.format==SANE_FRAME_RGB || params.format==SANE_FRAME_GRAY) ? 1:3);
 	fwrite(buf,1,len,out);
@@ -364,6 +369,11 @@ void ScannerClass::scanImage(bool preview)
 			QObject::connect(cancelbtn,&QPushButton::clicked,[this,out]()
 				{
 					sane_cancel(this->hdl);
+					if(QFileInfo::exists(scanPath))
+						QFile::remove(scanPath);
+					if(QFileInfo::exists(QString("%1/cropped.jpg").arg(tmpFolderPath)))
+						QFile::remove(QString("%1/cropped.jpg").arg(tmpFolderPath));
+					mwc->setSensitive();
 					return;
 				});
 		}
@@ -409,6 +419,7 @@ void ScannerClass::scanImage(bool preview)
 		}
 
 	mwc->setInfoBar();
+	mwc->setSensitive();
 }
 
 void ScannerClass::resetSize(void)

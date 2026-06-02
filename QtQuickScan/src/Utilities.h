@@ -34,7 +34,7 @@ class UtilitiesClass
 		QString	lastDir="/tmp";
 		QString	lastName="output";
 		QString	lastSFX="pnm";
-		void		convertImage(QString inpath,QString type="",QString dir="",QString name="");
+		void		convertImage(QString inpath,QString type="",QString name="",QString dir="");
 
 //help
 		QString	aboutText;

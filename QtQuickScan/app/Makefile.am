@@ -18,6 +18,7 @@ man1_MANS = ../resources/man/qtquickscan.1
 install-exec-hook:
 	install -D ../resources/pixmaps/QtQuickScan.png $(DESTDIR)${prefix}/share/pixmaps/QtQuickScan.png
 	install -D ../resources/pixmaps/QtQuickScan.desktop $(DESTDIR)${prefix}/share/applications/QtQuickScan.desktop
+	cp -r "../resources/icons" "$(DESTDIR)$(pkgdatadir)"
 
 uninstall-hook:
 	rm -f $(DESTDIR)${prefix}/share/applications/QtQuickScan.desktop

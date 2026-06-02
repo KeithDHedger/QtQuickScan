@@ -40,6 +40,8 @@ class MainWindowClass: public QMainWindow
 		QImage				image2;
 		QLabel				*statusText=NULL;
 		QLabel				*statusText2=NULL;
+		QAction				*toggleBandMenuItem;
+		QString				realDataDir;
 
 		prefsWidgetsClass	prefs;
 		ImageLabelClass		*label1;

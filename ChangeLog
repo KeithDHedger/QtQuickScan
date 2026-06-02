@@ -1,3 +1,14 @@
+0.1.2
+Saved last used name after saving cropped image.
+Fixed saving without an image name.
+Added various icons to menu items,
+Added default icons.
+Fixed disabled restore scan after clearing selection.
+Combined hide/show selection menu item.
+Clear selection no longer restores scan.
+Disable menubar when scanning.
+Set menuitems in crop menu.
+
 0.1.1
 Code clean.
 Added prefs to set margins.

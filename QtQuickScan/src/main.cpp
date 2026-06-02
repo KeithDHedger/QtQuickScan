@@ -43,7 +43,7 @@ int main(int argc,char** argv)
 
 	previewPath=QString("%1/preview.pnm").arg(tmpFolderPath);
 	scanPath=QString("%1/scan.pnm").arg(tmpFolderPath);
-	
+
 	mwc=new MainWindowClass;
 	mwc->show();
 

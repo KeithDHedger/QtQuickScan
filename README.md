@@ -23,6 +23,8 @@ DEPS:
 libsane + libsane development files  
 Qt6 ( may run on Qt5 but you need to adjust the configure.ac file ).  
 
+For testing purposes you can open "/etc/sane.d/dll.conf" and uncomment the 'test' entry ( around line 95 ).  
+
 TODO ( in no particular order ):  
 More options.  
 ~~Previews.~~  

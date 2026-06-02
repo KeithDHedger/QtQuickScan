@@ -28,7 +28,7 @@ UtilitiesClass::UtilitiesClass()
 {
 }
 
-void UtilitiesClass::convertImage(QString inpath,QString type,QString dir,QString name)
+void UtilitiesClass::convertImage(QString inpath,QString type,QString name,QString dir)
 {
 	QString outPath;
 	QString outdir=dir;

@@ -61,3 +61,5 @@ INSTALL
 NEWS
 *.o
 *~
+PrivateDevFiles/QtQuickScan.AppImage
+PrivateDevFiles/runtime-x86_64

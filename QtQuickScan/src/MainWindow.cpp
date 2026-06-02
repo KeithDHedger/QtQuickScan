@@ -134,7 +134,8 @@ void MainWindowClass::setFileMenu(void)
 					case SAVEITEM:
 						{
 							QString filepath=QFileDialog::getSaveFileName(this,"Select file",this->utils.lastDir+"/"+this->utils.lastName+"."+this->utils.lastSFX,"All Images (*.png *.jpg *.jpeg *.bmp *.tif *.tiff *.webp *.pbm *.pgm *.ppm *.xbm *.xpm *.pnm)");
-							this->utils.convertImage(scanPath,QFileInfo(filepath).completeSuffix(),QFileInfo(filepath).absolutePath(),QFileInfo(filepath).baseName());
+							this->utils.convertImage(scanPath,QFileInfo(filepath).completeSuffix(),QFileInfo(filepath).baseName(),QFileInfo(filepath).absolutePath());
+							this->setInfoBar();
 						}
 						break;
 					case SAVEASJPGITEM:
@@ -241,61 +242,64 @@ QMenu* MainWindowClass::setCropMenu(QMenuBar *menubar)
 	actions=new QActionGroup(menu);
 	actions->setExclusive(true);
 
-	act=new QAction("Crop To Selection",actions);
+	act=new QAction(QIcon::fromTheme("tool-crop"),"Crop To Selection",actions);
 	act->setData(CROPTORECTITEM);
 	act->setEnabled(false);
 
 	act=new QAction(actions);
 	act->setSeparator(true);
 
-	act=new QAction("Open Cropped In GIMP",actions);
+	act=new QAction(QIcon::fromTheme("document-open"),"Open Cropped In GIMP",actions);
 	act->setData(OPENCROPPEDINGIMP);
 	act->setEnabled(false);
 
-	act=new QAction("Save Cropped As JPG",actions);
+	act=new QAction(QIcon::fromTheme("document-save"),"Save Cropped As JPG",actions);
 	act->setData(SAVECROPPEDASJPG);
 	act->setEnabled(false);
 
-	act=new QAction("Save Cropped As PNG",actions);
+	act=new QAction(QIcon::fromTheme("document-save"),"Save Cropped As PNG",actions);
 	act->setData(SAVECROPPEDASPNG);
 	act->setEnabled(false);
 
 	act=new QAction(actions);
 	act->setSeparator(true);
 
-	act=new QAction("Restore Scan",actions);
+	act=new QAction(QIcon::fromTheme("view-restore"),"Restore Scan",actions);
 	act->setData(RESTORESCAN);
 	act->setEnabled(false);
 
-	act=new QAction("Hide Selection",actions);
-	act->setData(HIDESELITEM);
+	act=new QAction(QIcon::fromTheme("list-remove"),"Selection",actions);
+	act->setData(TOGGLESELITEM);
 	act->setEnabled(false);
+	this->toggleBandMenuItem=act;
 
-	act=new QAction("Show Selection",actions);
-	act->setData(SHOWSELITEM);
-	act->setEnabled(false);
-
-	act=new QAction("Clear Selection",actions);
+	act=new QAction(QIcon::fromTheme("edit-clear"),"Clear Selection",actions);
 	act->setData(CLEARSELITEM);
 	act->setEnabled(false);
 
 	menu->addActions(actions->actions());
 	QObject::connect(actions,&QActionGroup::triggered,this,[this,actions](QAction *action)
 		{
+			QString holdname=this->utils.lastName;
 			switch(action->data().toInt())
 				{
 					case OPENCROPPEDINGIMP:
 						QProcess::startDetached("gimp",QStringList()<<qPrintable(QString("%1/cropped.jpg").arg(tmpFolderPath)));
 						break;
 					case SAVECROPPEDASJPG:
-						this->utils.convertImage(QString("%1/cropped.jpg").arg(tmpFolderPath),"jpg");
+						this->utils.convertImage(QString("%1/cropped.jpg").arg(tmpFolderPath),"jpg","cropped");
 						break;
 					case SAVECROPPEDASPNG:
-						this->utils.convertImage(QString("%1/cropped.jpg").arg(tmpFolderPath),"png");
+						this->utils.convertImage(QString("%1/cropped.jpg").arg(tmpFolderPath),"png","cropped");
 						break;
 					case RESTORESCAN:
 						this->loadImage(scanPath);
 						this->label1->rubberBand->show();
+						if(QFileInfo::exists(QString("%1/cropped.jpg").arg(tmpFolderPath)))
+							QFile::remove(QString("%1/cropped.jpg").arg(tmpFolderPath));
+						for(int j=0;j<this->cropMenu->actions().size();j++)
+							this->cropMenu->actions().at(j)->setEnabled(false);
+						this->label1->rubberBand->hide();
 						break;
 
 					case CROPTORECTITEM:
@@ -319,14 +323,34 @@ QMenu* MainWindowClass::setCropMenu(QMenuBar *menubar)
 									return;
 								}
 							this->label1->rubberBand->hide();
+							for(int j=0;j<this->cropMenu->actions().size();j++)
+								if(j>0 && j<CDIV2)
+									this->cropMenu->actions().at(j)->setEnabled(true);
+							this->toggleBandMenuItem->setText("Show Selection");
+							this->toggleBandMenuItem->setIcon(QIcon::fromTheme("list-add"));
+
+							this->label1->bandShowing=false;
 						}
 						break;
-					case HIDESELITEM:
-						this->label1->rubberBand->hide();
+					case TOGGLESELITEM:
+						if(this->label1->bandShowing==true)
+							{
+								this->label1->rubberBand->hide();
+								for(int j=0;j<this->cropMenu->actions().size();j++)
+									if(j>0 && j<CDIV2)
+										this->cropMenu->actions().at(j)->setEnabled(false);
+								this->toggleBandMenuItem->setText("Show Selection");
+								this->toggleBandMenuItem->setIcon(QIcon::fromTheme("list-add"));
+							}
+						else
+							{
+								this->label1->rubberBand->show();
+								this->toggleBandMenuItem->setText("Hide Selection");
+								this->toggleBandMenuItem->setIcon(QIcon::fromTheme("list-remove"));
+							}
+						this->label1->bandShowing=!this->label1->bandShowing;
 						break;
-					case SHOWSELITEM:
-						this->label1->rubberBand->show();
-						break;
+
 					case CLEARSELITEM:
 						this->label1->resize=false;
 						this->label1->rubberBand->hide(); 
@@ -334,10 +358,13 @@ QMenu* MainWindowClass::setCropMenu(QMenuBar *menubar)
 						this->label1->selectionRect=QRect(0,0,0,0);
 						for(int j=0;j<this->cropMenu->actions().size();j++)
 							this->cropMenu->actions().at(j)->setEnabled(false);
-						this->loadImage(scanPath);
-						system(qPrintable(QString("rm %1/cropped.jpg").arg(tmpFolderPath)));
+						this->cropMenu->actions().at(RESTORESCAN)->setEnabled(true);
+						if(QFileInfo::exists(QString("%1/cropped.jpg").arg(tmpFolderPath)))
+							QFile::remove(QString("%1/cropped.jpg").arg(tmpFolderPath));
+
 						break;
 				}
+			this->utils.lastName=holdname;
 		});
 	return(menu);
 }
@@ -366,7 +393,7 @@ void MainWindowClass::setDeviceMenu(void)
 
 	actions=new QActionGroup(this->deviceMenu);
 
-	act=new QAction("Reload Devices",actions);
+	act=new QAction(QIcon::fromTheme("view-refresh"),"Reload Devices",actions);
 	act=new QAction(actions);
 	act->setSeparator(true);
 
@@ -378,6 +405,11 @@ void MainWindowClass::setDeviceMenu(void)
 
 	for(int j=0;device_list[j];++j)
 		{
+//							qDebug()<<device_list[j]->name;
+//							qDebug()<<device_list[j]->vendor;
+//							qDebug()<<device_list[j]->model;
+//							qDebug()<<device_list[j]->type;
+
 			act=new QAction(device_list[j]->name,actions);
 			act->setCheckable(true);
 			if(first==true)
@@ -489,6 +521,12 @@ MainWindowClass::MainWindowClass()
 	QSettings	settings("KDHedger",PACKAGE_NAME);
 	QRect		r(50,50,800,600);
 
+	this->realDataDir=QString("%1%2").arg(getenv("APPDIR")).arg(DATADIR);
+
+	QIcon::setThemeSearchPaths(QStringList()<<QString("%1/usr/share/icons").arg(getenv("APPDIR"))<<QString("/usr/share/icons")<<QString("%1/.icons").arg(getenv("HOME")) <<QString("%1/icons").arg(this->realDataDir) );
+	QIcon::setFallbackSearchPaths(QStringList()<<QString("%1/usr/share/icons").arg(getenv("APPDIR"))<<QString("/usr/share/icons")<<QString("%1/.icons").arg(getenv("HOME"))  <<QString("%1/icons").arg(this->realDataDir));
+	QIcon::setFallbackThemeName("kkeditqticons");
+
 	r=settings.value("app/geometry",QVariant(r)).value<QRect>();
 	this->setGeometry(r);
 
@@ -521,11 +559,11 @@ MainWindowClass::MainWindowClass()
 	this->helpMenu=setHelpMenu(&this->menuBar);
 
 	this->utils.aboutText="<b>QtQuickScan</b>\n\nVersion " PACKAGE_VERSION "\n\nSimple scanner frontend for QT6\n\n©K.D.Hedger 2026\n\n<a href=\"" GLOBALWEBSITE "\">Homepage</a>\n\n<a href=\"mailto:" MYEMAIL "\">Email Me</a>";
-	this->utils.docPath=QString("%1/docs/help.html").arg(DATADIR);
+	this->utils.docPath=QString("%1/docs/help.html").arg(this->realDataDir);
 	if(QFileInfo::exists(this->utils.docPath)==false)
 		this->utils.docPath=QFileInfo("../resources/docs/help.html").canonicalFilePath();
 
-	this->utils.pathToIcon=QString("%1/pixmaps/QtQuickScan.png").arg(DATADIR);
+	this->utils.pathToIcon=QString("%1/pixmaps/QtQuickScan.png").arg(this->realDataDir);
 	if(QFileInfo::exists(this->utils.pathToIcon)==false)
 		this->utils.pathToIcon=QFileInfo("../resources/pixmaps/QtQuickScan.png").canonicalFilePath();
 
@@ -534,33 +572,27 @@ MainWindowClass::MainWindowClass()
 
 	this->setMenuBar(&this->menuBar);
 
-	this->utils.lastDir=this->prefs.getFilePref("app/dir");
-	this->utils.lastName=this->prefs.getFilePref("app/name");
-	this->utils.lastSFX=this->prefs.getFilePref("app/sfx");
+QString tmp;
+	tmp=this->prefs.getFilePref("app/dir");
+	if(tmp.isEmpty()==false)
+		this->utils.lastDir=tmp;
+	tmp=this->prefs.getFilePref("app/name");
+	if(tmp.isEmpty()==false)
+		this->utils.lastName=tmp;
+	tmp=this->prefs.getFilePref("app/sfx");
+	if(tmp.isEmpty()==false)
+		this->utils.lastSFX=tmp;
 
 	if(QFileInfo::exists(this->utils.lastDir)==false)
 		this->utils.lastDir="/tmp";
 
-QStatusBar *sb=this->statusBar();
-
-
-	//this->statusBar()->setSizeGripEnabled(false);
+	QStatusBar *sb=this->statusBar();
 	sb->setSizeGripEnabled(false);
-	//this->statusText=new QLabel(this);
 	this->statusText=new QLabel(this);
- 
- 
- 
- 	//this->statusBar()->addWidget(statusText);
  	sb->addWidget(this->statusText);
-
-
 
 	QPushButton *yourButton = new QPushButton("Click Me");
 	this->statusText2=new QLabel(this);
-
-	//mwc->statusBar()->removeWidget(mwc->statusText);
-	//sb->addWidget(yourButton,1);
 
 	this->setInfoBar();
 }
@@ -575,9 +607,7 @@ void MainWindowClass::loadImage(QString filename)
 	if(QFileInfo::exists(filename)==false)
 		return;
 
-	//QImage image(filename,"pnm");
 	this->fullImage.load(filename,"pnm");
-	//this->image2=image.scaled(this->width()-50,this->height()-50,Qt::KeepAspectRatio);
 	this->image2=this->fullImage.scaled(this->width()-50,this->height()-50,Qt::KeepAspectRatio);
 	mwc->label1->setPixmap(QPixmap::fromImage(this->image2));
 }
@@ -586,6 +616,7 @@ void MainWindowClass::setSensitive(void)
 {
 	bool enable;
 
+	this->menuBar.setEnabled(true);
 	enable=QFileInfo::exists(scanPath);
 	for(int j=DIV1;j<DIV2;j++)
 		this->fileMenu->actions().at(j)->setEnabled(enable);
