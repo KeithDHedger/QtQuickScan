@@ -40,6 +40,9 @@ cp --parents -rp /lib/qt6/plugins/imageformats ${WHERE}
 cp --parents -rp /usr/lib/sane ${WHERE}
 cp --parents -rp /etc/sane.d ${WHERE}
 
+cp --parents -rp /usr/lib/qt6/plugins/assetimporters ${WHERE}
+cp --parents -rp /usr/lib/qt6/plugins/sqldrivers ${WHERE}
+
 while read
 	do
 		if file "$REPLY"|grep --quiet -i "ELF" ;then

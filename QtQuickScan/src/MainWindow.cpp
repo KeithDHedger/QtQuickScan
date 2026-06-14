@@ -525,7 +525,7 @@ MainWindowClass::MainWindowClass()
 
 	QIcon::setThemeSearchPaths(QStringList()<<QString("%1/usr/share/icons").arg(getenv("APPDIR"))<<QString("/usr/share/icons")<<QString("%1/.icons").arg(getenv("HOME")) <<QString("%1/icons").arg(this->realDataDir) );
 	QIcon::setFallbackSearchPaths(QStringList()<<QString("%1/usr/share/icons").arg(getenv("APPDIR"))<<QString("/usr/share/icons")<<QString("%1/.icons").arg(getenv("HOME"))  <<QString("%1/icons").arg(this->realDataDir));
-	QIcon::setFallbackThemeName("kkeditqticons");
+	QIcon::setFallbackThemeName("qtquickscanicons");
 
 	r=settings.value("app/geometry",QVariant(r)).value<QRect>();
 	this->setGeometry(r);
