@@ -2,7 +2,7 @@
 
 APPIMAGENAME="QtQuickScan"
 WHERE=${WHERE:-"/tmp/qtchroot"}
-PROJECTFOLDER=~/Projects/DevProjects/QtQuickScan
+PROJECTFOLDER=..
 ELFLOG=/tmp/linked.log
 LIBS=/tmp/libs
 :>$ELFLOG
